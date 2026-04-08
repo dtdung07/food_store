@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 06, 2026 lúc 03:47 PM
--- Phiên bản máy phục vụ: 10.4.32-MariaDB
--- Phiên bản PHP: 8.2.12
+-- Host: 127.0.0.1
+-- Generation Time: Apr 08, 2026 at 10:54 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.1.25
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Cơ sở dữ liệu: `food_store`
+-- Database: `food_store`
 --
 
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `chi_tiet_ban_lo`
+-- Table structure for table `chi_tiet_ban_lo`
 --
 
 CREATE TABLE `chi_tiet_ban_lo` (
@@ -37,7 +37,7 @@ CREATE TABLE `chi_tiet_ban_lo` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `chi_tiet_hoa_don`
+-- Table structure for table `chi_tiet_hoa_don`
 --
 
 CREATE TABLE `chi_tiet_hoa_don` (
@@ -52,7 +52,7 @@ CREATE TABLE `chi_tiet_hoa_don` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `chi_tiet_huy_lo`
+-- Table structure for table `chi_tiet_huy_lo`
 --
 
 CREATE TABLE `chi_tiet_huy_lo` (
@@ -65,7 +65,7 @@ CREATE TABLE `chi_tiet_huy_lo` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `chi_tiet_phieu_huy`
+-- Table structure for table `chi_tiet_phieu_huy`
 --
 
 CREATE TABLE `chi_tiet_phieu_huy` (
@@ -78,7 +78,7 @@ CREATE TABLE `chi_tiet_phieu_huy` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `chi_tiet_phieu_nhap`
+-- Table structure for table `chi_tiet_phieu_nhap`
 --
 
 CREATE TABLE `chi_tiet_phieu_nhap` (
@@ -93,7 +93,7 @@ CREATE TABLE `chi_tiet_phieu_nhap` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `chi_tiet_phieu_xuat`
+-- Table structure for table `chi_tiet_phieu_xuat`
 --
 
 CREATE TABLE `chi_tiet_phieu_xuat` (
@@ -106,7 +106,7 @@ CREATE TABLE `chi_tiet_phieu_xuat` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `chi_tiet_xuat_lo`
+-- Table structure for table `chi_tiet_xuat_lo`
 --
 
 CREATE TABLE `chi_tiet_xuat_lo` (
@@ -119,7 +119,7 @@ CREATE TABLE `chi_tiet_xuat_lo` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `chuc_vu`
+-- Table structure for table `chuc_vu`
 --
 
 CREATE TABLE `chuc_vu` (
@@ -128,7 +128,7 @@ CREATE TABLE `chuc_vu` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
--- Đang đổ dữ liệu cho bảng `chuc_vu`
+-- Dumping data for table `chuc_vu`
 --
 
 INSERT INTO `chuc_vu` (`ma_chuc_vu`, `ten_chuc_vu`) VALUES
@@ -141,7 +141,7 @@ INSERT INTO `chuc_vu` (`ma_chuc_vu`, `ten_chuc_vu`) VALUES
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `danh_muc`
+-- Table structure for table `danh_muc`
 --
 
 CREATE TABLE `danh_muc` (
@@ -153,7 +153,7 @@ CREATE TABLE `danh_muc` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `hang_hoa`
+-- Table structure for table `hang_hoa`
 --
 
 CREATE TABLE `hang_hoa` (
@@ -170,7 +170,7 @@ CREATE TABLE `hang_hoa` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `hoa_don`
+-- Table structure for table `hoa_don`
 --
 
 CREATE TABLE `hoa_don` (
@@ -186,7 +186,7 @@ CREATE TABLE `hoa_don` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `lo_hang`
+-- Table structure for table `lo_hang`
 --
 
 CREATE TABLE `lo_hang` (
@@ -201,7 +201,7 @@ CREATE TABLE `lo_hang` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `nhan_vien`
+-- Table structure for table `nhan_vien`
 --
 
 CREATE TABLE `nhan_vien` (
@@ -216,16 +216,17 @@ CREATE TABLE `nhan_vien` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
--- Đang đổ dữ liệu cho bảng `nhan_vien`
+-- Dumping data for table `nhan_vien`
 --
 
 INSERT INTO `nhan_vien` (`ma_nhan_vien`, `ten_nhan_vien`, `gioi_tinh`, `so_dien_thoai`, `email`, `dia_chi`, `ngay_sinh`, `ma_chuc_vu`) VALUES
-('NV001', 'Quản trị viên', 'Nam', '0900000001', 'admin@foodstore.vn', 'Hà Nội', '1990-01-01', 'ADMIN');
+('NV001', 'Quản trị viên', 'Nam', '0900000001', 'admin@foodstore.vn', 'Hà Nộia', '1990-01-13', 'ADMIN'),
+('NV002', 'こんばんは', 'Nam', '090000003', 'ivanogawau56f@trendstex.com', NULL, NULL, 'QUAN_LY');
 
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `nha_cung_cap`
+-- Table structure for table `nha_cung_cap`
 --
 
 CREATE TABLE `nha_cung_cap` (
@@ -241,7 +242,7 @@ CREATE TABLE `nha_cung_cap` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `phieu_huy_hang`
+-- Table structure for table `phieu_huy_hang`
 --
 
 CREATE TABLE `phieu_huy_hang` (
@@ -256,7 +257,7 @@ CREATE TABLE `phieu_huy_hang` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `phieu_nhap_hang`
+-- Table structure for table `phieu_nhap_hang`
 --
 
 CREATE TABLE `phieu_nhap_hang` (
@@ -272,7 +273,7 @@ CREATE TABLE `phieu_nhap_hang` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `phieu_xuat_hang`
+-- Table structure for table `phieu_xuat_hang`
 --
 
 CREATE TABLE `phieu_xuat_hang` (
@@ -286,7 +287,7 @@ CREATE TABLE `phieu_xuat_hang` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `tai_khoan`
+-- Table structure for table `tai_khoan`
 --
 
 CREATE TABLE `tai_khoan` (
@@ -299,18 +300,19 @@ CREATE TABLE `tai_khoan` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
--- Đang đổ dữ liệu cho bảng `tai_khoan`
+-- Dumping data for table `tai_khoan`
 --
 
 INSERT INTO `tai_khoan` (`ma_tai_khoan`, `ten_dang_nhap`, `password`, `trang_thai`, `ma_nhan_vien`, `ma_chuc_vu`) VALUES
-(1, 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'HOAT_DONG', 'NV001', 'ADMIN');
+(1, 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'HOAT_DONG', 'NV001', 'ADMIN'),
+(2, 'admin1', '$2y$10$Xss06fXdiixuH0y4aIXjSO8w54FXsBFN49Fcf4htSW/vPTUUedLi6', 'HOAT_DONG', 'NV002', 'QUAN_LY');
 
 --
--- Chỉ mục cho các bảng đã đổ
+-- Indexes for dumped tables
 --
 
 --
--- Chỉ mục cho bảng `chi_tiet_ban_lo`
+-- Indexes for table `chi_tiet_ban_lo`
 --
 ALTER TABLE `chi_tiet_ban_lo`
   ADD PRIMARY KEY (`ma_chi_tiet_ban_lo`),
@@ -318,7 +320,7 @@ ALTER TABLE `chi_tiet_ban_lo`
   ADD KEY `ma_lo_hang` (`ma_lo_hang`);
 
 --
--- Chỉ mục cho bảng `chi_tiet_hoa_don`
+-- Indexes for table `chi_tiet_hoa_don`
 --
 ALTER TABLE `chi_tiet_hoa_don`
   ADD PRIMARY KEY (`ma_chi_tiet_hd`),
@@ -326,7 +328,7 @@ ALTER TABLE `chi_tiet_hoa_don`
   ADD KEY `ma_hang_hoa` (`ma_hang_hoa`);
 
 --
--- Chỉ mục cho bảng `chi_tiet_huy_lo`
+-- Indexes for table `chi_tiet_huy_lo`
 --
 ALTER TABLE `chi_tiet_huy_lo`
   ADD PRIMARY KEY (`ma_chi_tiet_huy_lo`),
@@ -334,7 +336,7 @@ ALTER TABLE `chi_tiet_huy_lo`
   ADD KEY `ma_lo_hang` (`ma_lo_hang`);
 
 --
--- Chỉ mục cho bảng `chi_tiet_phieu_huy`
+-- Indexes for table `chi_tiet_phieu_huy`
 --
 ALTER TABLE `chi_tiet_phieu_huy`
   ADD PRIMARY KEY (`ma_chi_tiet_huy`),
@@ -342,7 +344,7 @@ ALTER TABLE `chi_tiet_phieu_huy`
   ADD KEY `ma_hang_hoa` (`ma_hang_hoa`);
 
 --
--- Chỉ mục cho bảng `chi_tiet_phieu_nhap`
+-- Indexes for table `chi_tiet_phieu_nhap`
 --
 ALTER TABLE `chi_tiet_phieu_nhap`
   ADD PRIMARY KEY (`ma_chi_tiet_nhap`),
@@ -351,7 +353,7 @@ ALTER TABLE `chi_tiet_phieu_nhap`
   ADD KEY `ma_lo_hang` (`ma_lo_hang`);
 
 --
--- Chỉ mục cho bảng `chi_tiet_phieu_xuat`
+-- Indexes for table `chi_tiet_phieu_xuat`
 --
 ALTER TABLE `chi_tiet_phieu_xuat`
   ADD PRIMARY KEY (`ma_chi_tiet_xuat`),
@@ -359,7 +361,7 @@ ALTER TABLE `chi_tiet_phieu_xuat`
   ADD KEY `ma_hang_hoa` (`ma_hang_hoa`);
 
 --
--- Chỉ mục cho bảng `chi_tiet_xuat_lo`
+-- Indexes for table `chi_tiet_xuat_lo`
 --
 ALTER TABLE `chi_tiet_xuat_lo`
   ADD PRIMARY KEY (`ma_chi_tiet_xuat_lo`),
@@ -367,21 +369,21 @@ ALTER TABLE `chi_tiet_xuat_lo`
   ADD KEY `ma_lo_hang` (`ma_lo_hang`);
 
 --
--- Chỉ mục cho bảng `chuc_vu`
+-- Indexes for table `chuc_vu`
 --
 ALTER TABLE `chuc_vu`
   ADD PRIMARY KEY (`ma_chuc_vu`),
   ADD UNIQUE KEY `ten_chuc_vu` (`ten_chuc_vu`);
 
 --
--- Chỉ mục cho bảng `danh_muc`
+-- Indexes for table `danh_muc`
 --
 ALTER TABLE `danh_muc`
   ADD PRIMARY KEY (`ma_danh_muc`),
   ADD UNIQUE KEY `ten_danh_muc` (`ten_danh_muc`);
 
 --
--- Chỉ mục cho bảng `hang_hoa`
+-- Indexes for table `hang_hoa`
 --
 ALTER TABLE `hang_hoa`
   ADD PRIMARY KEY (`ma_hang_hoa`),
@@ -390,41 +392,41 @@ ALTER TABLE `hang_hoa`
   ADD KEY `ma_nha_cung_cap` (`ma_nha_cung_cap`);
 
 --
--- Chỉ mục cho bảng `hoa_don`
+-- Indexes for table `hoa_don`
 --
 ALTER TABLE `hoa_don`
   ADD PRIMARY KEY (`ma_hoa_don`),
   ADD KEY `ma_nhan_vien` (`ma_nhan_vien`);
 
 --
--- Chỉ mục cho bảng `lo_hang`
+-- Indexes for table `lo_hang`
 --
 ALTER TABLE `lo_hang`
   ADD PRIMARY KEY (`ma_lo_hang`),
   ADD KEY `ma_hang_hoa` (`ma_hang_hoa`);
 
 --
--- Chỉ mục cho bảng `nhan_vien`
+-- Indexes for table `nhan_vien`
 --
 ALTER TABLE `nhan_vien`
   ADD PRIMARY KEY (`ma_nhan_vien`),
   ADD KEY `ma_chuc_vu` (`ma_chuc_vu`);
 
 --
--- Chỉ mục cho bảng `nha_cung_cap`
+-- Indexes for table `nha_cung_cap`
 --
 ALTER TABLE `nha_cung_cap`
   ADD PRIMARY KEY (`ma_nha_cung_cap`);
 
 --
--- Chỉ mục cho bảng `phieu_huy_hang`
+-- Indexes for table `phieu_huy_hang`
 --
 ALTER TABLE `phieu_huy_hang`
   ADD PRIMARY KEY (`ma_phieu_huy`),
   ADD KEY `ma_nhan_vien` (`ma_nhan_vien`);
 
 --
--- Chỉ mục cho bảng `phieu_nhap_hang`
+-- Indexes for table `phieu_nhap_hang`
 --
 ALTER TABLE `phieu_nhap_hang`
   ADD PRIMARY KEY (`ma_phieu_nhap`),
@@ -432,14 +434,14 @@ ALTER TABLE `phieu_nhap_hang`
   ADD KEY `ma_nha_cung_cap` (`ma_nha_cung_cap`);
 
 --
--- Chỉ mục cho bảng `phieu_xuat_hang`
+-- Indexes for table `phieu_xuat_hang`
 --
 ALTER TABLE `phieu_xuat_hang`
   ADD PRIMARY KEY (`ma_phieu_xuat`),
   ADD KEY `ma_nhan_vien` (`ma_nhan_vien`);
 
 --
--- Chỉ mục cho bảng `tai_khoan`
+-- Indexes for table `tai_khoan`
 --
 ALTER TABLE `tai_khoan`
   ADD PRIMARY KEY (`ma_tai_khoan`),
@@ -448,91 +450,91 @@ ALTER TABLE `tai_khoan`
   ADD KEY `ma_chuc_vu` (`ma_chuc_vu`);
 
 --
--- AUTO_INCREMENT cho các bảng đã đổ
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT cho bảng `chi_tiet_ban_lo`
+-- AUTO_INCREMENT for table `chi_tiet_ban_lo`
 --
 ALTER TABLE `chi_tiet_ban_lo`
   MODIFY `ma_chi_tiet_ban_lo` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT cho bảng `chi_tiet_hoa_don`
+-- AUTO_INCREMENT for table `chi_tiet_hoa_don`
 --
 ALTER TABLE `chi_tiet_hoa_don`
   MODIFY `ma_chi_tiet_hd` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT cho bảng `chi_tiet_huy_lo`
+-- AUTO_INCREMENT for table `chi_tiet_huy_lo`
 --
 ALTER TABLE `chi_tiet_huy_lo`
   MODIFY `ma_chi_tiet_huy_lo` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT cho bảng `chi_tiet_phieu_huy`
+-- AUTO_INCREMENT for table `chi_tiet_phieu_huy`
 --
 ALTER TABLE `chi_tiet_phieu_huy`
   MODIFY `ma_chi_tiet_huy` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT cho bảng `chi_tiet_phieu_nhap`
+-- AUTO_INCREMENT for table `chi_tiet_phieu_nhap`
 --
 ALTER TABLE `chi_tiet_phieu_nhap`
   MODIFY `ma_chi_tiet_nhap` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT cho bảng `chi_tiet_phieu_xuat`
+-- AUTO_INCREMENT for table `chi_tiet_phieu_xuat`
 --
 ALTER TABLE `chi_tiet_phieu_xuat`
   MODIFY `ma_chi_tiet_xuat` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT cho bảng `chi_tiet_xuat_lo`
+-- AUTO_INCREMENT for table `chi_tiet_xuat_lo`
 --
 ALTER TABLE `chi_tiet_xuat_lo`
   MODIFY `ma_chi_tiet_xuat_lo` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT cho bảng `tai_khoan`
+-- AUTO_INCREMENT for table `tai_khoan`
 --
 ALTER TABLE `tai_khoan`
-  MODIFY `ma_tai_khoan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `ma_tai_khoan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- Các ràng buộc cho các bảng đã đổ
+-- Constraints for dumped tables
 --
 
 --
--- Các ràng buộc cho bảng `chi_tiet_ban_lo`
+-- Constraints for table `chi_tiet_ban_lo`
 --
 ALTER TABLE `chi_tiet_ban_lo`
   ADD CONSTRAINT `chi_tiet_ban_lo_ibfk_1` FOREIGN KEY (`ma_chi_tiet_hd`) REFERENCES `chi_tiet_hoa_don` (`ma_chi_tiet_hd`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `chi_tiet_ban_lo_ibfk_2` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `chi_tiet_hoa_don`
+-- Constraints for table `chi_tiet_hoa_don`
 --
 ALTER TABLE `chi_tiet_hoa_don`
   ADD CONSTRAINT `chi_tiet_hoa_don_ibfk_1` FOREIGN KEY (`ma_hoa_don`) REFERENCES `hoa_don` (`ma_hoa_don`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `chi_tiet_hoa_don_ibfk_2` FOREIGN KEY (`ma_hang_hoa`) REFERENCES `hang_hoa` (`ma_hang_hoa`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `chi_tiet_huy_lo`
+-- Constraints for table `chi_tiet_huy_lo`
 --
 ALTER TABLE `chi_tiet_huy_lo`
   ADD CONSTRAINT `chi_tiet_huy_lo_ibfk_1` FOREIGN KEY (`ma_chi_tiet_huy`) REFERENCES `chi_tiet_phieu_huy` (`ma_chi_tiet_huy`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `chi_tiet_huy_lo_ibfk_2` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `chi_tiet_phieu_huy`
+-- Constraints for table `chi_tiet_phieu_huy`
 --
 ALTER TABLE `chi_tiet_phieu_huy`
   ADD CONSTRAINT `chi_tiet_phieu_huy_ibfk_1` FOREIGN KEY (`ma_phieu_huy`) REFERENCES `phieu_huy_hang` (`ma_phieu_huy`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `chi_tiet_phieu_huy_ibfk_2` FOREIGN KEY (`ma_hang_hoa`) REFERENCES `hang_hoa` (`ma_hang_hoa`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `chi_tiet_phieu_nhap`
+-- Constraints for table `chi_tiet_phieu_nhap`
 --
 ALTER TABLE `chi_tiet_phieu_nhap`
   ADD CONSTRAINT `chi_tiet_phieu_nhap_ibfk_1` FOREIGN KEY (`ma_phieu_nhap`) REFERENCES `phieu_nhap_hang` (`ma_phieu_nhap`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -540,65 +542,65 @@ ALTER TABLE `chi_tiet_phieu_nhap`
   ADD CONSTRAINT `chi_tiet_phieu_nhap_ibfk_3` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `chi_tiet_phieu_xuat`
+-- Constraints for table `chi_tiet_phieu_xuat`
 --
 ALTER TABLE `chi_tiet_phieu_xuat`
   ADD CONSTRAINT `chi_tiet_phieu_xuat_ibfk_1` FOREIGN KEY (`ma_phieu_xuat`) REFERENCES `phieu_xuat_hang` (`ma_phieu_xuat`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `chi_tiet_phieu_xuat_ibfk_2` FOREIGN KEY (`ma_hang_hoa`) REFERENCES `hang_hoa` (`ma_hang_hoa`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `chi_tiet_xuat_lo`
+-- Constraints for table `chi_tiet_xuat_lo`
 --
 ALTER TABLE `chi_tiet_xuat_lo`
   ADD CONSTRAINT `chi_tiet_xuat_lo_ibfk_1` FOREIGN KEY (`ma_chi_tiet_xuat`) REFERENCES `chi_tiet_phieu_xuat` (`ma_chi_tiet_xuat`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `chi_tiet_xuat_lo_ibfk_2` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `hang_hoa`
+-- Constraints for table `hang_hoa`
 --
 ALTER TABLE `hang_hoa`
   ADD CONSTRAINT `hang_hoa_ibfk_1` FOREIGN KEY (`ma_danh_muc`) REFERENCES `danh_muc` (`ma_danh_muc`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `hang_hoa_ibfk_2` FOREIGN KEY (`ma_nha_cung_cap`) REFERENCES `nha_cung_cap` (`ma_nha_cung_cap`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `hoa_don`
+-- Constraints for table `hoa_don`
 --
 ALTER TABLE `hoa_don`
   ADD CONSTRAINT `hoa_don_ibfk_1` FOREIGN KEY (`ma_nhan_vien`) REFERENCES `nhan_vien` (`ma_nhan_vien`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `lo_hang`
+-- Constraints for table `lo_hang`
 --
 ALTER TABLE `lo_hang`
   ADD CONSTRAINT `lo_hang_ibfk_1` FOREIGN KEY (`ma_hang_hoa`) REFERENCES `hang_hoa` (`ma_hang_hoa`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `nhan_vien`
+-- Constraints for table `nhan_vien`
 --
 ALTER TABLE `nhan_vien`
   ADD CONSTRAINT `nhan_vien_ibfk_1` FOREIGN KEY (`ma_chuc_vu`) REFERENCES `chuc_vu` (`ma_chuc_vu`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `phieu_huy_hang`
+-- Constraints for table `phieu_huy_hang`
 --
 ALTER TABLE `phieu_huy_hang`
   ADD CONSTRAINT `phieu_huy_hang_ibfk_1` FOREIGN KEY (`ma_nhan_vien`) REFERENCES `nhan_vien` (`ma_nhan_vien`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `phieu_nhap_hang`
+-- Constraints for table `phieu_nhap_hang`
 --
 ALTER TABLE `phieu_nhap_hang`
   ADD CONSTRAINT `phieu_nhap_hang_ibfk_1` FOREIGN KEY (`ma_nhan_vien`) REFERENCES `nhan_vien` (`ma_nhan_vien`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `phieu_nhap_hang_ibfk_2` FOREIGN KEY (`ma_nha_cung_cap`) REFERENCES `nha_cung_cap` (`ma_nha_cung_cap`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `phieu_xuat_hang`
+-- Constraints for table `phieu_xuat_hang`
 --
 ALTER TABLE `phieu_xuat_hang`
   ADD CONSTRAINT `phieu_xuat_hang_ibfk_1` FOREIGN KEY (`ma_nhan_vien`) REFERENCES `nhan_vien` (`ma_nhan_vien`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Các ràng buộc cho bảng `tai_khoan`
+-- Constraints for table `tai_khoan`
 --
 ALTER TABLE `tai_khoan`
   ADD CONSTRAINT `tai_khoan_ibfk_1` FOREIGN KEY (`ma_nhan_vien`) REFERENCES `nhan_vien` (`ma_nhan_vien`) ON DELETE CASCADE ON UPDATE CASCADE,
