@@ -1,0 +1,73 @@
+/* Nâng cấp độ mượt của UI (Smooth Interactions) */
+
+/* Nút bấm nhấn xuống cảm giác chân thực */
+.button, button, .nav-link {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.button:active, button:active, .nav-link:active {
+    transform: scale(0.96) !important;
+}
+
+/* Biến table thành smooth hover */
+tbody tr {
+    transition: background-color 0.25s ease, transform 0.20s ease !important;
+}
+
+tbody tr:hover {
+    background-color: var(--surface-muted) !important;
+    transform: translateY(-1px) translateX(2px) !important;
+    box-shadow: -4px 4px 12px rgba(0,0,0,0.02) !important;
+}
+
+/* Animations cho nội dung tải từ HTMX */
+.htmx-settling {
+    opacity: 0;
+}
+
+.content__inner {
+    animation: fadeUp 0.35s ease-out forwards;
+}
+
+/* Live Search Spinner */
+.htmx-request.loading-spinner,
+.htmx-request .loading-spinner {
+    display: inline-block !important;
+    animation: spin 1s linear infinite;
+}
+
+.loading-spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Customizing SweetAlert to match design system */
+.swal2-popup {
+    border-radius: var(--radius-lg) !important;
+    padding: 24px !important;
+}
+.swal2-confirm.button {
+    background-color: var(--blue) !important;
+    border-radius: 18px !important;
+}
+.swal2-cancel.button--ghost {
+    border-radius: 18px !important;
+}
