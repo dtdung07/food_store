@@ -104,26 +104,42 @@ class NhanVienController
         $id = trim((string) ($_POST['ma_nhan_vien'] ?? ''));
         $currentUser = current_user();
 
-        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        $isAjax = expects_json_response();
 
         if ($id === '') {
-            if ($isAjax) { echo json_encode(['success' => false, 'message' => 'Không có mã nhân viên để xóa.']); exit; }
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Không có mã nhân viên để xóa.']);
+                exit;
+            }
             flash('error', 'Không có mã nhân viên để xóa.');
             redirect_to('nhan-vien', 'index');
         }
 
         if ($currentUser !== null && ($currentUser['ma_nhan_vien'] ?? '') === $id) {
-            if ($isAjax) { echo json_encode(['success' => false, 'message' => 'Không thể xóa nhân viên đang đăng nhập.']); exit; }
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Không thể xóa nhân viên đang đăng nhập.']);
+                exit;
+            }
             flash('error', 'Không thể xóa nhân viên đang đăng nhập.');
             redirect_to('nhan-vien', 'index');
         }
 
         try {
             $this->nhanVienModel->delete($id);
-            if ($isAjax) { echo json_encode(['success' => true, 'message' => 'Đã xóa nhân viên.']); exit; }
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'message' => 'Đã xóa nhân viên.']);
+                exit;
+            }
             flash('success', 'Đã xóa nhân viên.');
         } catch (Throwable $exception) {
-            if ($isAjax) { echo json_encode(['success' => false, 'message' => db_error_message($exception)]); exit; }
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => db_error_message($exception)]);
+                exit;
+            }
             flash('error', db_error_message($exception));
         }
 

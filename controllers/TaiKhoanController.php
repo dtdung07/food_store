@@ -105,7 +105,7 @@ class TaiKhoanController
         $id = (int) ($_POST['ma_tai_khoan'] ?? 0);
         $currentUser = current_user();
 
-        $isAjax = isset($_SERVER['HTTP_HX_REQUEST']) || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+        $isAjax = expects_json_response();
 
         if ($id <= 0) {
             if ($isAjax) {

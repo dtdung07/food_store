@@ -151,19 +151,28 @@ function deleteAccount(btn, id) {
                 },
                 body: new URLSearchParams({ ma_tai_khoan: id })
             })
-            .then(res => res.json())
+            .then(res => {
+                const contentType = res.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    throw new Error('SERVER_HTML'); // Server trả về HTML (redirect/error page)
+                }
+                return res.json();
+            })
             .then(data => {
                 if(data.success) {
                     Swal.fire('Đã xóa!', data.message, 'success');
-                    setTimeout(() => row.remove(), 400); // Remove row after transition
+                    setTimeout(() => row.remove(), 400);
                 } else {
                     row.classList.remove('htmx-settling');
-                    Swal.fire('Lỗi!', data.message, 'error');
+                    Swal.fire('Lỗi!', data.message || 'Không thể xóa tài khoản này.', 'error');
                 }
             })
             .catch(err => {
                 row.classList.remove('htmx-settling');
-                Swal.fire('Lỗi mạng!', 'Không thể thực hiện xóa do gián đoạn kết nối', 'error');
+                const msg = err.message === 'SERVER_HTML'
+                    ? 'Phiên đăng nhập đã hết hoặc bạn không có quyền thực hiện thao tác này.'
+                    : 'Không thể kết nối máy chủ. Vui lòng thử lại.';
+                Swal.fire('Lỗi!', msg, 'error');
             });
         }
     });

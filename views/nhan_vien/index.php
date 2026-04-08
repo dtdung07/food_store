@@ -193,7 +193,13 @@ function deleteEmployee(id) {
                 },
                 body: new URLSearchParams({ma_nhan_vien: id})
             })
-            .then(response => response.json())
+            .then(response => {
+                const contentType = response.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    throw new Error('SERVER_HTML'); // Server trả về HTML thay vì JSON
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     let row = document.querySelector(`#emp-row-${id}`);
@@ -201,11 +207,11 @@ function deleteEmployee(id) {
                         row.style.transition = "all 0.4s ease";
                         row.style.opacity = "0";
                         row.style.transform = "translateX(-20px)";
-                        setTimeout(() => row.remove(), 400); 
+                        setTimeout(() => row.remove(), 400);
                     }
                     Swal.fire({
-                        title: 'Đã xoá!', 
-                        text: 'Dữ liệu nhân viên đã được xoá thành công.', 
+                        title: 'Đã xoá!',
+                        text: 'Dữ liệu nhân viên đã được xoá thành công.',
                         icon: 'success',
                         timer: 1500,
                         showConfirmButton: false
@@ -214,7 +220,12 @@ function deleteEmployee(id) {
                     Swal.fire('Lỗi', data.message || 'Không thể xóa nhân viên này!', 'error');
                 }
             })
-            .catch(() => Swal.fire('Lỗi', 'Có lỗi xảy ra khi kết nối máy chủ.', 'error'));
+            .catch(err => {
+                const msg = err.message === 'SERVER_HTML'
+                    ? 'Phiên đăng nhập đã hết hoặc bạn không có quyền thực hiện thao tác này.'
+                    : 'Không thể kết nối máy chủ. Vui lòng thử lại.';
+                Swal.fire('Lỗi', msg, 'error');
+            });
         }
     })
 }

@@ -20,6 +20,23 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
+foreach (array_keys($_GET) as $key) {
+    if (!str_starts_with((string) $key, 'amp;')) {
+        continue;
+    }
+
+    $normalizedKey = substr((string) $key, 4);
+    if ($normalizedKey === '') {
+        continue;
+    }
+
+    if (!array_key_exists($normalizedKey, $_GET)) {
+        $_GET[$normalizedKey] = $_GET[$key];
+    }
+
+    unset($_GET[$key]);
+}
+
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 const MODULE_ACCESS = [
@@ -187,10 +204,33 @@ function can_access(string $module): bool
     return in_array($role, $allowedRoles, true);
 }
 
+
+
+function is_ajax_request(): bool
+{
+    // Detect fetch/XMLHttpRequest hoặc HTMX request
+    return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+        || isset($_SERVER['HTTP_HX_REQUEST']);
+}
+
+function expects_json_response(): bool
+{
+    $accept = strtolower((string) ($_SERVER['HTTP_ACCEPT'] ?? ''));
+
+    return is_ajax_request() || str_contains($accept, 'application/json');
+}
+
 function require_login(): void
 {
     if (is_logged_in()) {
         return;
+    }
+
+    if (expects_json_response()) {
+        http_response_code(401);
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.']);
+        exit;
     }
 
     flash('error', 'Vui lòng đăng nhập để tiếp tục.');
@@ -203,6 +243,13 @@ function require_permission(string $module): void
 
     if (can_access($module)) {
         return;
+    }
+
+    if (expects_json_response()) {
+        http_response_code(403);
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Tài khoản không có quyền thực hiện thao tác này.']);
+        exit;
     }
 
     flash('error', 'Tài khoản không có quyền truy cập chức năng này.');
