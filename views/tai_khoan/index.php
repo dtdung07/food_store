@@ -76,7 +76,6 @@ $adminAccounts = count(array_filter($accounts, static fn(array $account): bool =
     <div class="table-card__header">
         <div>
             <h3>Danh sách tài khoản</h3>
-            <p class="section-subtitle">Bảng dữ liệu được làm mới theo đúng phong cách dashboard.</p>
         </div>
     </div>
     <?php if ($accounts === []): ?>

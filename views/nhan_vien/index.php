@@ -104,7 +104,6 @@ $withoutAccount = max(0, $totalEmployees - $employeesWithAccount);
     <div class="table-card__header">
         <div>
             <h3>Danh sách nhân viên</h3>
-            <p class="section-subtitle">Bảng dữ liệu được hiển thị siêu mượt bằng HTMX Live-Search.</p>
         </div>
     </div>
     <?php if ($employees === []): ?>
