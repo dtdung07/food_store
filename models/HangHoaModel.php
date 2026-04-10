@@ -1,0 +1,224 @@
+<?php
+require_once BASE_PATH . 'config/database.php';
+
+/**
+ * HangHoaModel
+ * Bảng hang_hoa: ma_hang_hoa, ten_hang_hoa, don_vi_tinh, gia_ban,
+ *                ma_vach, trang_thai, ma_danh_muc, ma_nha_cung_cap
+ * Bảng lo_hang : ma_lo_hang, ngay_san_xuat, han_su_dung,
+ *                so_luong_trong_kho, so_luong_tren_ke, ma_hang_hoa
+ */
+class HangHoaModel {
+    private $db;
+
+    public function __construct() {
+        $this->db = db();
+    }
+
+    /* ══════════════════════════════════════════════════
+       READ – danh sách có lọc + tồn kho từ lo_hang
+    ══════════════════════════════════════════════════ */
+    public function getFiltered(
+        string $keyword   = '',
+        string $maDanhMuc = '',
+        string $trangThai = '',
+        ?int   $limit     = null,
+        ?int   $offset    = null
+    ): array {
+        [$inner, $params] = $this->_buildQuery($keyword, $maDanhMuc, $trangThai);
+
+        $sql = "SELECT base.*, COALESCE(tk.ton_kho, 0) AS ton_kho
+                FROM ({$inner}) AS base
+                LEFT JOIN (
+                    SELECT ma_hang_hoa,
+                           SUM(so_luong_trong_kho + so_luong_tren_ke) AS ton_kho
+                    FROM lo_hang
+                    GROUP BY ma_hang_hoa
+                ) tk ON tk.ma_hang_hoa = base.ma_hang_hoa
+                ORDER BY base.ten_hang_hoa";
+
+        if ($limit !== null) {
+            $sql .= ' LIMIT ' . intval($limit);
+            if ($offset !== null) $sql .= ' OFFSET ' . intval($offset);
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function countFiltered(
+        string $keyword   = '',
+        string $maDanhMuc = '',
+        string $trangThai = ''
+    ): int {
+        [$inner, $params] = $this->_buildQuery($keyword, $maDanhMuc, $trangThai);
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM ({$inner}) AS sub");
+        $stmt->execute($params);
+        return (int)$stmt->fetchColumn();
+    }
+
+    /** Lấy 1 bản ghi kèm tên danh mục, NCC và tổng tồn kho */
+    public function findById(string $ma_hang_hoa): array|false {
+        $stmt = $this->db->prepare(
+            "SELECT h.*,
+                    d.ten_danh_muc,
+                    n.ten_nha_cung_cap,
+                    COALESCE(tk.ton_kho, 0) AS ton_kho
+             FROM hang_hoa h
+             LEFT JOIN danh_muc d     ON d.ma_danh_muc     = h.ma_danh_muc
+             LEFT JOIN nha_cung_cap n ON n.ma_nha_cung_cap = h.ma_nha_cung_cap
+             LEFT JOIN (
+                 SELECT ma_hang_hoa,
+                        SUM(so_luong_trong_kho + so_luong_tren_ke) AS ton_kho
+                 FROM lo_hang
+                 GROUP BY ma_hang_hoa
+             ) tk ON tk.ma_hang_hoa = h.ma_hang_hoa
+             WHERE h.ma_hang_hoa = ?"
+        );
+        $stmt->execute([$ma_hang_hoa]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
+
+    /* ══════════════════════════════════════════════════
+       LÔ HÀNG – đọc & ghi số lượng
+    ══════════════════════════════════════════════════ */
+
+    /** Lấy tất cả lô hàng của 1 sản phẩm, mới nhất trước */
+    public function getLoHang(string $ma_hang_hoa): array {
+        $stmt = $this->db->prepare(
+            "SELECT * FROM lo_hang
+             WHERE ma_hang_hoa = ?
+             ORDER BY han_su_dung ASC"
+        );
+        $stmt->execute([$ma_hang_hoa]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Cập nhật số lượng 1 lô.
+     * $lots = [['ma_lo_hang'=>'...','so_luong_trong_kho'=>int,'so_luong_tren_ke'=>int], ...]
+     */
+    public function updateLoHangBatch(array $lots): bool {
+        $stmt = $this->db->prepare(
+            "UPDATE lo_hang
+             SET so_luong_trong_kho = ?,
+                 so_luong_tren_ke   = ?
+             WHERE ma_lo_hang = ?"
+        );
+        foreach ($lots as $lot) {
+            $kho = max(0, (int)($lot['so_luong_trong_kho'] ?? 0));
+            $ke  = max(0, (int)($lot['so_luong_tren_ke']   ?? 0));
+            $stmt->execute([$kho, $ke, $lot['ma_lo_hang']]);
+        }
+        return true;
+    }
+
+    /* ══════════════════════════════════════════════════
+       WRITE – hàng hóa
+    ══════════════════════════════════════════════════ */
+    public function create(array $data): bool {
+        $stmt = $this->db->prepare(
+            "INSERT INTO hang_hoa
+                 (ma_hang_hoa, ten_hang_hoa, don_vi_tinh, gia_ban,
+                  ma_vach, trang_thai, ma_danh_muc, ma_nha_cung_cap)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        );
+        return $stmt->execute([
+            $data['ma_hang_hoa'],
+            $data['ten_hang_hoa'],
+            $data['don_vi_tinh'],
+            $data['gia_ban'],
+            $data['ma_vach']        ?? null,
+            $data['trang_thai'],
+            $data['ma_danh_muc']    ?? null,
+            $data['ma_nha_cung_cap'] ?? null,
+        ]);
+    }
+
+    /**
+     * Cập nhật – cho phép đổi cả mã hàng hóa.
+     * $ma_hang_hoa = mã CŨ (WHERE), $data['ma_hang_hoa'] = mã MỚI
+     */
+    public function update(string $ma_hang_hoa, array $data): bool {
+        $newCode = strtoupper(trim($data['ma_hang_hoa'] ?? $ma_hang_hoa));
+
+        $stmt = $this->db->prepare(
+            "UPDATE hang_hoa
+             SET ma_hang_hoa     = ?,
+                 ten_hang_hoa    = ?,
+                 don_vi_tinh     = ?,
+                 gia_ban         = ?,
+                 ma_vach         = ?,
+                 trang_thai      = ?,
+                 ma_danh_muc     = ?,
+                 ma_nha_cung_cap = ?
+             WHERE ma_hang_hoa   = ?"
+        );
+        return $stmt->execute([
+            $newCode,
+            $data['ten_hang_hoa'],
+            $data['don_vi_tinh'],
+            $data['gia_ban'],
+            $data['ma_vach']        ?? null,
+            $data['trang_thai'],
+            $data['ma_danh_muc']    ?? null,
+            $data['ma_nha_cung_cap'] ?? null,
+            $ma_hang_hoa,
+        ]);
+    }
+
+    public function delete(string $ma_hang_hoa): bool {
+        $stmt = $this->db->prepare("DELETE FROM hang_hoa WHERE ma_hang_hoa = ?");
+        return $stmt->execute([$ma_hang_hoa]);
+    }
+
+    /* ══════════════════════════════════════════════════
+       SHORTCUTS tương thích ngược
+    ══════════════════════════════════════════════════ */
+    public function getAll(?int $limit = null, ?int $offset = null): array {
+        return $this->getFiltered('', '', '', $limit, $offset);
+    }
+
+    public function countAll(): int {
+        return (int)$this->db->query("SELECT COUNT(*) FROM hang_hoa")->fetchColumn();
+    }
+
+    public function search(string $keyword, ?int $limit = null, ?int $offset = null): array {
+        return $this->getFiltered($keyword, '', '', $limit, $offset);
+    }
+
+    public function countSearch(string $keyword): int {
+        return $this->countFiltered($keyword, '', '');
+    }
+
+    /* ══════════════════════════════════════════════════
+       PRIVATE – xây câu SQL lọc
+    ══════════════════════════════════════════════════ */
+    private function _buildQuery(string $keyword, string $maDanhMuc, string $trangThai): array {
+        $sql = "SELECT h.*, d.ten_danh_muc, n.ten_nha_cung_cap
+                FROM hang_hoa h
+                LEFT JOIN danh_muc d     ON d.ma_danh_muc     = h.ma_danh_muc
+                LEFT JOIN nha_cung_cap n ON n.ma_nha_cung_cap = h.ma_nha_cung_cap
+                WHERE 1=1";
+        $params = [];
+
+        if ($keyword !== '') {
+            $sql     .= " AND (h.ma_hang_hoa LIKE ? OR h.ten_hang_hoa LIKE ? OR h.ma_vach LIKE ?)";
+            $k        = "%{$keyword}%";
+            $params[] = $k;
+            $params[] = $k;
+            $params[] = $k;
+        }
+        if ($maDanhMuc !== '') {
+            $sql     .= " AND h.ma_danh_muc = ?";
+            $params[] = $maDanhMuc;
+        }
+        if ($trangThai !== '') {
+            $sql     .= " AND h.trang_thai = ?";
+            $params[] = $trangThai;
+        }
+
+        return [$sql, $params];
+    }
+}

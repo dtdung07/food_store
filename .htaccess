@@ -1,9 +1,15 @@
-#Bật mod_rewrite
 RewriteEngine On
-
-#Nếu file hoặc thư mục thật sự tồn tại thì truy cập trực tiếp (css, js, images...)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.\*)$ index.php?/$1 [L]
 
-#Chuyển tất cả request còn lại về index.php
-RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+# Bảo vệ thư mục
+
+Options -Indexes
+
+# Chặn truy cập file cấu hình
+
+<FilesMatch "\.(sql|log|ini)$">
+Order allow,deny
+Deny from all
+</FilesMatch>
