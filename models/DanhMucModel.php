@@ -8,6 +8,26 @@ class DanhMucModel {
         $this->db = db();
     }
     
+    // Lấy tất cả danh mục + số lượng sản phẩm
+    public function getAllWithProductCount($limit = null, $offset = null) {
+        $sql = "SELECT dm.*, 
+                       COUNT(hh.ma_hang_hoa) AS so_luong_sp
+                FROM danh_muc dm
+                LEFT JOIN hang_hoa hh ON hh.ma_danh_muc = dm.ma_danh_muc
+                GROUP BY dm.ma_danh_muc
+                ORDER BY dm.ten_danh_muc";
+        
+        if ($limit !== null) {
+            $sql .= " LIMIT " . intval($limit);
+            if ($offset !== null) {
+                $sql .= " OFFSET " . intval($offset);
+            }
+        }
+        
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll();
+    }
+    
     public function getAll($limit = null, $offset = null) {
         $sql = "SELECT * FROM danh_muc ORDER BY ten_danh_muc";
         if ($limit !== null) {

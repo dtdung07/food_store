@@ -12,12 +12,20 @@ class DanhMucController {
         checkLogin();
         checkRole(['ADMIN', 'QUAN_LY']);
         
-        $page = $_GET['page'] ?? 1;
-        $limit = 10;
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = 12;
         $offset = ($page - 1) * $limit;
+        $keyword = $_GET['keyword'] ?? '';
         
-        $danhMucs = $this->danhMucModel->getAll($limit, $offset);
-        $total = $this->danhMucModel->countAll();
+        if ($keyword) {
+            // Tạm thời dùng getAllWithProductCount cho đơn giản
+            $danhMucs = $this->danhMucModel->getAllWithProductCount($limit, $offset);
+            $total = $this->danhMucModel->countAll();
+        } else {
+            $danhMucs = $this->danhMucModel->getAllWithProductCount($limit, $offset);
+            $total = $this->danhMucModel->countAll();
+        }
+        
         $totalPages = ceil($total / $limit);
         
         include BASE_PATH . 'views/layout/header.php';
