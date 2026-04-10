@@ -8,6 +8,26 @@ class NhaCungCapModel {
         $this->db = db();
     }
     
+    // Lấy tất cả + số lượng sản phẩm
+    public function getAllWithProductCount($limit = null, $offset = null) {
+        $sql = "SELECT ncc.*, 
+                       COUNT(hh.ma_hang_hoa) AS so_san_pham
+                FROM nha_cung_cap ncc
+                LEFT JOIN hang_hoa hh ON hh.ma_nha_cung_cap = ncc.ma_nha_cung_cap
+                GROUP BY ncc.ma_nha_cung_cap
+                ORDER BY ncc.ten_nha_cung_cap";
+        
+        if ($limit !== null) {
+            $sql .= " LIMIT " . intval($limit);
+            if ($offset !== null) {
+                $sql .= " OFFSET " . intval($offset);
+            }
+        }
+        
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll();
+    }
+    
     public function getAll($limit = null, $offset = null) {
         $sql = "SELECT * FROM nha_cung_cap ORDER BY ten_nha_cung_cap";
         if ($limit !== null) {
@@ -68,14 +88,20 @@ class NhaCungCapModel {
     }
     
     public function search($keyword, $limit = null, $offset = null) {
-        $sql = "SELECT * FROM nha_cung_cap WHERE ma_nha_cung_cap LIKE ? OR ten_nha_cung_cap LIKE ? OR so_dien_thoai LIKE ?
-                ORDER BY ten_nha_cung_cap";
+        $sql = "SELECT ncc.*, COUNT(hh.ma_hang_hoa) AS so_san_pham
+                FROM nha_cung_cap ncc
+                LEFT JOIN hang_hoa hh ON hh.ma_nha_cung_cap = ncc.ma_nha_cung_cap
+                WHERE ncc.ma_nha_cung_cap LIKE ? OR ncc.ten_nha_cung_cap LIKE ? OR ncc.so_dien_thoai LIKE ?
+                GROUP BY ncc.ma_nha_cung_cap
+                ORDER BY ncc.ten_nha_cung_cap";
+        
         if ($limit !== null) {
             $sql .= " LIMIT " . intval($limit);
             if ($offset !== null) {
                 $sql .= " OFFSET " . intval($offset);
             }
         }
+        
         $stmt = $this->db->prepare($sql);
         $keyword = "%$keyword%";
         $stmt->execute([$keyword, $keyword, $keyword]);
@@ -83,7 +109,8 @@ class NhaCungCapModel {
     }
     
     public function countSearch($keyword) {
-        $sql = "SELECT COUNT(*) FROM nha_cung_cap WHERE ma_nha_cung_cap LIKE ? OR ten_nha_cung_cap LIKE ? OR so_dien_thoai LIKE ?";
+        $sql = "SELECT COUNT(*) FROM nha_cung_cap 
+                WHERE ma_nha_cung_cap LIKE ? OR ten_nha_cung_cap LIKE ? OR so_dien_thoai LIKE ?";
         $stmt = $this->db->prepare($sql);
         $keyword = "%$keyword%";
         $stmt->execute([$keyword, $keyword, $keyword]);

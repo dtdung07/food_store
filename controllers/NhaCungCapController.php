@@ -9,28 +9,31 @@ class NhaCungCapController {
     }
     
     public function index() {
-    checkLogin();
-    checkRole(['ADMIN', 'QUAN_LY', 'THU_KHO']);
-    
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $limit = 10;
-    $offset = ($page - 1) * $limit;
-    $keyword = $_GET['keyword'] ?? '';
-    
-    if ($keyword) {
-        $nhaCungCaps = $this->nhaCungCapModel->search($keyword, $limit, $offset);
-        $total = $this->nhaCungCapModel->countSearch($keyword);
-    } else {
-        $nhaCungCaps = $this->nhaCungCapModel->getAll($limit, $offset);
-        $total = $this->nhaCungCapModel->countAll();
+        checkLogin();
+        checkRole(['ADMIN', 'QUAN_LY', 'THU_KHO']);
+        
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = 12;
+        $offset = ($page - 1) * $limit;
+        $keyword = $_GET['keyword'] ?? '';
+        $trang_thai = $_GET['trang_thai'] ?? '';
+        
+        if ($keyword || $trang_thai) {
+            $nhaCungCaps = $this->nhaCungCapModel->search($keyword, $limit, $offset);
+            $total = $this->nhaCungCapModel->countSearch($keyword);
+        } else {
+            $nhaCungCaps = $this->nhaCungCapModel->getAllWithProductCount($limit, $offset);
+            $total = $this->nhaCungCapModel->countAll();
+        }
+        
+        $totalPages = ceil($total / $limit);
+        $activeCount = $this->nhaCungCapModel->countActive();
+        $totalCount = $total;
+        
+        include BASE_PATH . 'views/layout/header.php';
+        include BASE_PATH . 'views/nha_cung_cap/index.php';
+        include BASE_PATH . 'views/layout/footer.php';
     }
-    
-    $totalPages = ceil($total / $limit);
-    
-    include BASE_PATH . 'views/layout/header.php';
-    include BASE_PATH . 'views/nha_cung_cap/index.php';
-    include BASE_PATH . 'views/layout/footer.php';
-}
     
     public function create() {
         checkLogin();
