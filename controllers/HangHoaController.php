@@ -212,7 +212,7 @@ class HangHoaController {
             foreach ($rows as $r) {
                 $q = (int)$r['ton_kho'];
                 if ($q === 0)    $outStock++;
-                elseif ($q < 10) $lowStock++;
+                elseif ($q < 100) $lowStock++;
                 else             $inStock++;
             }
             return compact('total', 'inStock', 'lowStock', 'outStock');

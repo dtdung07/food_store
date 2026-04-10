@@ -218,7 +218,7 @@ $showTo    = min($page*15, $total ?? 0);
     </div>
     <div class="hh-stat s-low">
         <div class="hh-stat-ico ico-amber"><i class="fas fa-exclamation-triangle"></i></div>
-        <div><div class="hh-stat-num"><?= number_format($stats['lowStock'] ?? 0) ?></div><div class="hh-stat-lbl">Sắp hết (&lt;10)</div></div>
+        <div><div class="hh-stat-num"><?= number_format($stats['lowStock'] ?? 0) ?></div><div class="hh-stat-lbl">Sắp hết (&lt;100)</div></div>
     </div>
     <div class="hh-stat s-out">
         <div class="hh-stat-ico ico-red"><i class="fas fa-times-circle"></i></div>
