@@ -8,6 +8,10 @@ $controllerMap = [
     'bao-cao' => 'BaoCaoController',
     'nhan-vien' => 'NhanVienController',
     'tai-khoan' => 'TaiKhoanController',
+    'dashboard' => 'DashboardController',
+    'danh-muc' => 'DanhMucController',
+    'hang-hoa' => 'HangHoaController',
+    'nha-cung-cap' => 'NhaCungCapController',
 ];
 
 $route = current_route();

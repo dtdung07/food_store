@@ -8,8 +8,8 @@ $adminAccounts = count(array_filter($accounts, static fn(array $account): bool =
 ?>
 <section class="page-hero">
     <div>
-        <h1>Người dùng</h1>
-        <p>Quản lý tài khoản, vai trò và trạng thái truy cập theo giao diện dashboard mới.</p>
+        <h1>Tài khoản</h1>
+        <p>Quản lý tài khoản, vai trò và trạng thái hoạt động.</p>
     </div>
     <div class="page-actions">
         <a class="button" href="<?= e(url_for('tai-khoan', 'form')) ?>">
@@ -22,7 +22,7 @@ $adminAccounts = count(array_filter($accounts, static fn(array $account): bool =
 <section class="stat-overview stat-overview--compact">
     <article class="stat-card tone-blue">
         <span class="stat-card__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4.42 0-8 1.79-8 4v2h16v-2c0-2.21-3.58-4-8-4z"/></svg></span>
-        <div class="stat-card__content"><span class="stat-card__label">Tổng người dùng</span><strong class="stat-card__value"><?= e((string) $totalAccounts) ?></strong></div>
+        <div class="stat-card__content"><span class="stat-card__label">Tổng tài khoản</span><strong class="stat-card__value"><?= e((string) $totalAccounts) ?></strong></div>
         <span class="stat-card__accent"></span>
     </article>
     <article class="stat-card tone-green">
@@ -76,7 +76,6 @@ $adminAccounts = count(array_filter($accounts, static fn(array $account): bool =
     <div class="table-card__header">
         <div>
             <h3>Danh sách tài khoản</h3>
-            <p class="section-subtitle">Bảng dữ liệu được làm mới theo đúng phong cách dashboard.</p>
         </div>
     </div>
     <?php if ($accounts === []): ?>

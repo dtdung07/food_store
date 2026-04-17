@@ -4,11 +4,7 @@ $input = $input ?? [];
 ?>
 <section class="login-screen">
     <div class="login-card">
-        <p class="eyebrow">Hệ thống nội bộ</p>
-        <h1 class="page-title">Đăng nhập vào module được giao</h1>
-        <p class="section-subtitle">
-            Phạm vi đã được dựng sẵn cho báo cáo, nhân viên và người dùng.
-        </p>
+        <h1 class="page-title">Đăng nhập</h1>
 
         <?php if ($errors !== []): ?>
             <div class="errors">
@@ -35,7 +31,7 @@ $input = $input ?? [];
         </form>
 
         <p class="login-card__note">
-            Tài khoản mẫu theo dữ liệu seed: <strong>admin</strong> / <strong>password</strong>.
+            Tài khoản admin mẫu: <strong>admin</strong> / <strong>password</strong>.
         </p>
     </div>
 </section>

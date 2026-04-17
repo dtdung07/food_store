@@ -15,23 +15,33 @@
         <?php if (!$hideNav && $currentUser): ?>
             <aside class="sidebar">
                 <div class="brand">
-                    <h1>FreshMart Pro</h1>
+                    <h1>Food Store</h1>
                     <p>Quản lý siêu thị thực phẩm</p>
                 </div>
 
                 <nav class="sidebar__nav">
                     <div class="sidebar__section">
                         <span class="sidebar__section-label">Tổng quan</span>
-                        <a class="nav-link <?= $route['controller'] === 'bao-cao' ? 'is-active' : '' ?>" href="<?= e(url_for('bao-cao', 'index')) ?>">
-                            <span class="nav-link__icon">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zm10 0h6v10h-6zM4 14h6v6H4zm10 0h6v6h-6z"/></svg>
-                            </span>
-                            <span>Báo cáo</span>
-                        </a>
+                        <?php if (can_access('dashboard')): ?>
+                            <a class="nav-link <?= $route['controller'] === 'dashboard' ? 'is-active' : '' ?>" href="<?= e(url_for('dashboard', 'index')) ?>">
+                                <span class="nav-link__icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h1v7c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-7h1a1 1 0 0 0 .707-1.707l-9-9a.999.999 0 0 0-1.414 0l-9 9A1 1 0 0 0 3 13zm7 7v-5h4v5h-4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span>Dashboard</span>
+                            </a>
+                        <?php endif; ?>
+                        <?php if (can_access('bao-cao')): ?>
+                            <a class="nav-link <?= $route['controller'] === 'bao-cao' ? 'is-active' : '' ?>" href="<?= e(url_for('bao-cao', 'index')) ?>">
+                                <span class="nav-link__icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zm10 0h6v10h-6zM4 14h6v6H4zm10 0h6v6h-6z"/></svg>
+                                </span>
+                                <span>Báo cáo</span>
+                            </a>
+                        <?php endif; ?>
                     </div>
 
                     <div class="sidebar__section">
-                        <span class="sidebar__section-label">Danh mục</span>
+                        <span class="sidebar__section-label">Người dùng</span>
                         <?php if (can_access('nhan-vien')): ?>
                             <a class="nav-link <?= $route['controller'] === 'nhan-vien' ? 'is-active' : '' ?>" href="<?= e(url_for('nhan-vien', 'index')) ?>">
                                 <span class="nav-link__icon">
@@ -45,7 +55,35 @@
                                 <span class="nav-link__icon">
                                     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.3 3.1-6 7-6s7 2.7 7 6"/></svg>
                                 </span>
-                                <span>Người dùng</span>
+                                <span>Tài khoản</span>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="sidebar__section">
+                        <span class="sidebar__section-label">Quản lý</span>
+                        <?php if (can_access('danh-muc')): ?>
+                            <a class="nav-link <?= $route['controller'] === 'danh-muc' ? 'is-active' : '' ?>" href="<?= e(url_for('danh-muc', 'index')) ?>">
+                                <span class="nav-link__icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                </span>
+                                <span>Danh mục</span>
+                            </a>
+                        <?php endif; ?>
+                        <?php if (can_access('hang-hoa')): ?>
+                            <a class="nav-link <?= $route['controller'] === 'hang-hoa' ? 'is-active' : '' ?>" href="<?= e(url_for('hang-hoa', 'index')) ?>">
+                                <span class="nav-link__icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7l-8-4-8 4 8 4 8-4zm0 6l-8 4-8-4m20 6l-8 4-8-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span>Hàng hóa</span>
+                            </a>
+                        <?php endif; ?>
+                        <?php if (can_access('nha-cung-cap')): ?>
+                            <a class="nav-link <?= $route['controller'] === 'nha-cung-cap' ? 'is-active' : '' ?>" href="<?= e(url_for('nha-cung-cap', 'index')) ?>">
+                                <span class="nav-link__icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 17h2a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2m2 4h6M9 17v4m6-4v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span>Nhà cung cấp</span>
                             </a>
                         <?php endif; ?>
                     </div>

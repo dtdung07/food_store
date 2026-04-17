@@ -1,33 +1,49 @@
 <?php
-/** Form thêm/sửa danh mục */
-$dm     = $data['danhMuc'] ?? null;
-$isEdit = !empty($dm);
+declare(strict_types=1);
+$category = $category ?? [];
+$errors = $errors ?? [];
+$isEdit = $isEdit ?? false;
 ?>
-<h2 class="mb-3"><i class="bi bi-tag"></i> <?= $isEdit ? 'Sửa' : 'Thêm' ?> Danh mục</h2>
-<div class="card shadow-sm">
-    <div class="card-body">
-        <form method="post" action="<?= BASE_URL ?>?c=danh-muc&a=save" class="row g-3">
-            <?php if ($isEdit): ?>
-                <input type="hidden" name="is_edit" value="1">
-            <?php endif; ?>
-            <div class="col-md-4">
-                <label class="form-label">Mã danh mục</label>
-                <input type="text" name="ma_danh_muc" class="form-control" required
-                       value="<?= htmlspecialchars($dm['ma_danh_muc'] ?? '') ?>" <?= $isEdit ? 'readonly' : '' ?>>
-            </div>
-            <div class="col-md-8">
-                <label class="form-label">Tên danh mục</label>
-                <input type="text" name="ten_danh_muc" class="form-control" required
-                       value="<?= htmlspecialchars($dm['ten_danh_muc'] ?? '') ?>">
-            </div>
-            <div class="col-12">
-                <label class="form-label">Mô tả</label>
-                <textarea name="mo_ta" class="form-control" rows="3"><?= htmlspecialchars($dm['mo_ta'] ?? '') ?></textarea>
-            </div>
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary">Lưu</button>
-                <a href="<?= BASE_URL ?>?c=danh-muc" class="btn btn-outline-secondary">Quay lại</a>
-            </div>
-        </form>
+<section class="panel">
+    <div class="toolbar">
+        <div>
+            <h3 class="section-title"><?= $isEdit ? 'Cập nhật danh mục' : 'Thêm danh mục' ?></h3>
+            <p class="section-subtitle">Thông tin danh mục dùng để phân loại hàng hóa trong hệ thống.</p>
+        </div>
+        <a class="button button--ghost" href="<?= e(url_for('danh-muc', 'index')) ?>">Quay lại</a>
     </div>
-</div>
+
+    <?php if ($errors !== []): ?>
+        <div class="errors">
+            <?php foreach ($errors as $error): ?>
+                <div><?= e($error) ?></div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <form method="post" action="<?= e(url_for('danh-muc', 'save')) ?>" class="form-grid">
+        <input type="hidden" name="is_edit" value="<?= $isEdit ? '1' : '0' ?>">
+        
+        <div class="field">
+            <label for="ma_danh_muc">Mã danh mục <span style="color: var(--red);">*</span></label>
+            <input id="ma_danh_muc" name="ma_danh_muc" value="<?= e($category['ma_danh_muc'] ?? '') ?>" <?= $isEdit ? 'readonly' : '' ?> required placeholder="Ví dụ: DO_UONG, THUC_PHAM">
+            <?php if (!$isEdit): ?>
+                <span class="form-note">Dùng chữ in hoa không dấu, không chứa dấu cách. Không thể đổi sau khi tạo.</span>
+            <?php endif; ?>
+        </div>
+
+        <div class="field">
+            <label for="ten_danh_muc">Tên danh mục <span style="color: var(--red);">*</span></label>
+            <input id="ten_danh_muc" name="ten_danh_muc" value="<?= e($category['ten_danh_muc'] ?? '') ?>" required placeholder="Ví dụ: Đồ uống, Sữa trứng">
+        </div>
+
+        <div class="field field--full">
+            <label for="mo_ta">Mô tả</label>
+            <textarea id="mo_ta" name="mo_ta" placeholder="Mô tả ngắn gọn về danh mục..."><?= e($category['mo_ta'] ?? '') ?></textarea>
+        </div>
+
+        <div class="field field--full">
+            <button type="submit"><?= $isEdit ? 'Lưu cập nhật' : 'Thêm danh mục' ?></button>
+        </div>
+    </form>
+</section>

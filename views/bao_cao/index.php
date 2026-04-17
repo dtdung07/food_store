@@ -46,7 +46,7 @@ $donutStyle = '--donut: conic-gradient(' . implode(', ', $donutStops) . ');';
 <section class="page-hero">
     <div>
         <h1>Báo cáo &amp; Phân tích</h1>
-        <p>Thống kê và phân tích dữ liệu kinh doanh theo giao diện dashboard.</p>
+        <p>Thống kê và phân tích dữ liệu kinh doanh.</p>
     </div>
     <form method="get" action="<?= e(url_for('bao-cao', 'index')) ?>" class="page-actions">
         <input type="hidden" name="from" value="<?= e($filters['from'] ?? '') ?>">

@@ -15,7 +15,7 @@ class AuthController
     public function login(): void
     {
         if (is_logged_in()) {
-            redirect_to('bao-cao', 'index');
+            redirect_to('dashboard', 'index');
         }
 
         $errors = [];
@@ -41,7 +41,7 @@ class AuthController
                     session_regenerate_id(true);
                     login_user($account);
                     flash('success', 'Đăng nhập thành công.');
-                    redirect_to('bao-cao', 'index');
+                    redirect_to('dashboard', 'index');
                 }
             }
         }

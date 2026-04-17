@@ -26,7 +26,7 @@ $withoutAccount = max(0, $totalEmployees - $employeesWithAccount);
 <section class="page-hero">
     <div>
         <h1>Quản lý nhân viên</h1>
-        <p>Quản lý thông tin cơ bản và trạng thái vận hành của nhân viên theo bố cục dashboard.</p>
+        <p>Quản lý thông tin cơ bản và trạng thái hoạt động của nhân viên.</p>
     </div>
     <div class="page-actions">
         <a class="button" href="<?= e(url_for('nhan-vien', 'form')) ?>">
@@ -104,7 +104,6 @@ $withoutAccount = max(0, $totalEmployees - $employeesWithAccount);
     <div class="table-card__header">
         <div>
             <h3>Danh sách nhân viên</h3>
-            <p class="section-subtitle">Bảng dữ liệu được hiển thị siêu mượt bằng HTMX Live-Search.</p>
         </div>
     </div>
     <?php if ($employees === []): ?>

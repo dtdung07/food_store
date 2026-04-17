@@ -40,9 +40,13 @@ foreach (array_keys($_GET) as $key) {
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 const MODULE_ACCESS = [
+    'dashboard' => ['ADMIN', 'QUAN_LY', 'THU_KHO', 'THU_NGAN', 'NV_QUAY_CAN'],
     'bao-cao' => ['ADMIN', 'QUAN_LY', 'THU_KHO', 'THU_NGAN', 'NV_QUAY_CAN'],
     'nhan-vien' => ['ADMIN', 'QUAN_LY'],
     'tai-khoan' => ['ADMIN'],
+    'danh-muc' => ['ADMIN', 'QUAN_LY'],
+    'hang-hoa' => ['ADMIN', 'QUAN_LY', 'THU_KHO'],
+    'nha-cung-cap' => ['ADMIN', 'QUAN_LY', 'THU_KHO'],
 ];
 
 function current_route(): array
@@ -58,7 +62,7 @@ function current_route(): array
         $controller = sanitize_route_segment($segments[0] ?? '');
         $action = sanitize_route_segment($segments[1] ?? '');
         $route = [
-            'controller' => $controller !== '' ? $controller : (is_logged_in() ? 'bao-cao' : 'auth'),
+            'controller' => $controller !== '' ? $controller : (is_logged_in() ? 'dashboard' : 'auth'),
             'action' => $action !== '' ? $action : 'index',
         ];
 
@@ -66,7 +70,7 @@ function current_route(): array
     }
 
     $route = [
-        'controller' => sanitize_route_segment((string) ($_GET['c'] ?? (is_logged_in() ? 'bao-cao' : 'auth'))) ?: 'auth',
+        'controller' => sanitize_route_segment((string) ($_GET['c'] ?? (is_logged_in() ? 'dashboard' : 'auth'))) ?: 'auth',
         'action' => sanitize_route_segment((string) ($_GET['a'] ?? 'index')) ?: 'index',
     ];
 
