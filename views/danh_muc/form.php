@@ -28,7 +28,7 @@ $isEdit = $isEdit ?? false;
             <label for="ma_danh_muc">Mã danh mục <span style="color: var(--red);">*</span></label>
             <input id="ma_danh_muc" name="ma_danh_muc" value="<?= e($category['ma_danh_muc'] ?? '') ?>" <?= $isEdit ? 'readonly' : '' ?> required placeholder="Ví dụ: DO_UONG, THUC_PHAM">
             <?php if (!$isEdit): ?>
-                <span class="form-note">Dùng chữ in hoa không dấu, không chứa dấu cách. Không thể đổi sau khi tạo.</span>
+                <!-- <span class="form-note">Dùng chữ in hoa không dấu, không chứa dấu cách. Không thể đổi sau khi tạo.</span> -->
             <?php endif; ?>
         </div>
 

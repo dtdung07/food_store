@@ -47,6 +47,7 @@ const MODULE_ACCESS = [
     'danh-muc' => ['ADMIN', 'QUAN_LY'],
     'hang-hoa' => ['ADMIN', 'QUAN_LY', 'THU_KHO'],
     'nha-cung-cap' => ['ADMIN', 'QUAN_LY', 'THU_KHO'],
+    'kho' => ['ADMIN', 'QUAN_LY', 'THU_KHO']
 ];
 
 function current_route(): array
@@ -123,6 +124,7 @@ function render(string $view, array $data = []): void
     $currentUser = current_user();
     $route = current_route();
 
+    //Truyền các biến cho views, nếu trong views có tồn tại biến đó rồi thì bỏ qua, không ghi đè giá trị (EXTR_SKIP)
     extract($data, EXTR_SKIP);
 
     $isHtmx = isset($_SERVER['HTTP_HX_REQUEST']) && !isset($_SERVER['HTTP_HX_BOOSTED']);

@@ -139,4 +139,24 @@ class NhaCungCapModel
         $stmt->execute([$kw, $kw, $kw]);
         return (int) $stmt->fetchColumn();
     }
+
+    //Lấy danh sách nhà cung cấp đang hoạt động
+    public function allActive(): array
+    {
+        $sql = "SELECT * FROM nha_cung_cap
+                WHERE trang_thai = 'HOAT_DONG'
+                ORDER BY ten_nha_cung_cap ASC";
+
+        return $this->pdo->query($sql)->fetchAll();
+    }
+
+    //Tìm nhà cung cấp theo id
+    public function find(string $id): ?array
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM nha_cung_cap WHERE ma_nha_cung_cap = :id LIMIT 1");
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch();
+
+        return $row ?: null;
+    }
 }

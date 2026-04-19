@@ -87,6 +87,24 @@
                             </a>
                         <?php endif; ?>
                     </div>
+
+                    <?php if (can_access('kho')): ?>
+                        <div class="sidebar__section">
+                            <span class="sidebar__section-label">Kho hàng</span>
+                            <a class="nav-link <?= $route['controller'] === 'kho' && str_contains($route['action'], 'nhap') ? 'is-active' : '' ?>" href="<?= e(url_for('kho', 'nhap_index')) ?>">
+                                <span class="nav-link__icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/></svg>
+                                </span>
+                                <span>Nhập kho</span>
+                            </a>
+                            <a class="nav-link <?= $route['controller'] === 'kho' && str_contains($route['action'], 'xuat') ? 'is-active' : '' ?>" href="<?= e(url_for('kho', 'xuat_index')) ?>">
+                                <span class="nav-link__icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>
+                                </span>
+                                <span>Xuất kho</span>
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </nav>
 
                 <div class="sidebar__footer">

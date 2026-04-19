@@ -36,4 +36,17 @@ class LoHangModel
         $stmt->execute([$days]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getLastLotCodeWithPrefix(string $prefix): ?string
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT ma_lo_hang FROM lo_hang 
+             WHERE ma_lo_hang LIKE :prefix 
+             ORDER BY ma_lo_hang DESC LIMIT 1"
+        );
+        $stmt->execute(['prefix' => $prefix . '%']);
+        $result = $stmt->fetchColumn();
+        return $result ? (string) $result : null;
+    }
 }
+
