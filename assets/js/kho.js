@@ -32,7 +32,7 @@ function setupAutocomplete(inputEl, onSelect) {
                         res.data.forEach(item => {
                             const option = document.createElement('div');
                             option.style.cssText = 'padding:10px 16px; cursor:pointer; border-bottom:1px solid var(--line); font-size:15px; transition: background-color 0.2s;';
-                            option.innerHTML = `<strong>${item.ma_hang_hoa}</strong> - ${item.ten_hang_hoa} <span style="font-size:0.8rem; color:var(--muted);">(Tồn: ${item.ton_kho} | Kệ: ${item.ton_ke})</span>`;
+                            option.innerHTML = `<strong>${item.ma_hang_hoa}</strong> - ${item.ten_hang_hoa} <span style="font-size:0.8rem; color:var(--muted);">(Tồn: ${item.ton_trong_kho} | Kệ: ${item.ton_ke})</span>`;
                             option.addEventListener('click', () => {
                                 inputEl.value = `${item.ma_hang_hoa} - ${item.ten_hang_hoa}`;
                                 dropdown.style.display = 'none';
@@ -119,7 +119,7 @@ function initNhapKhoForm() {
         setupAutocomplete(searchInput, (item) => {
             hiddenInput.value = item.ma_hang_hoa;
 
-            // Tự động gợi ý Mã Lô (Cách 3: Auto-suggest + Manual Override)
+            //Tự động gợi ý Mã Lô (Người dùng có thể sửa thủ công mã lô theo NSX)
             const lotInput = tr.querySelector('.row-ma-lo');
             if (lotInput) {
                 fetch(`index.php?c=kho&a=generate_lo_code&ma_hang_hoa=${encodeURIComponent(item.ma_hang_hoa)}`)
@@ -127,12 +127,12 @@ function initNhapKhoForm() {
                     .then(res => {
                         if (res.success) {
                             let code = res.code;
-                            
-                            // Kiểm tra trùng lặp trên giao diện hiện tại
+
+                            //Kiểm tra trùng lặp trên giao diện hiện tại
                             let isDuplicate = true;
                             let suffixNum = parseInt(code.split('-').pop()) || 1;
                             const prefix = code.substring(0, code.lastIndexOf('-') + 1);
-                            
+
                             while (isDuplicate) {
                                 isDuplicate = false;
                                 document.querySelectorAll('#detail-body tr').forEach(row => {
@@ -148,7 +148,7 @@ function initNhapKhoForm() {
                                     code = prefix + String(suffixNum).padStart(2, '0');
                                 }
                             }
-                            
+
                             lotInput.value = code;
                         }
                     })
@@ -190,6 +190,124 @@ function initNhapKhoForm() {
         if (totalQtyEl) totalQtyEl.textContent = totalQty.toLocaleString('vi-VN');
         if (totalAmountEl) totalAmountEl.textContent = totalAmount.toLocaleString('vi-VN') + ' VND';
     }
+}
+
+//------------FORM XUẤT KHO------------
+function initXuatKhoForm() {
+    const detailBody = document.getElementById('detail-body');
+    const btnAddRow = document.getElementById('btn-add-row');
+
+    if (!detailBody || !btnAddRow) return;
+
+    detailBody.innerHTML = '';
+
+    btnAddRow.onclick = () => addXuatRow();
+
+    // Thêm dòng đầu tiên mặc định
+    addXuatRow();
+
+    function addXuatRow() {
+        const idx = rowIdx++;
+        const tr = document.createElement('tr');
+        tr.id = `row-${idx}`;
+        tr.innerHTML = `
+            <td>
+                <input type="text" class="input-search-product" placeholder="Nhập tên/mã hàng..." required autocomplete="off" style="padding: 8px 12px; border-radius: 12px;">
+                <input type="hidden" name="ma_hang_hoa[]" class="row-ma-hang-hoa">
+            </td>
+            <td>
+                <input type="number" name="so_luong[]" class="row-so-luong" min="1" value="1" required style="padding: 8px 12px; border-radius: 12px; text-align: right; width: 100px;">
+            </td>
+            <td style="vertical-align: middle;">
+                <div class="fifo-suggest-container text-muted" style="font-size:0.9rem;">
+                    Nhập sản phẩm & số lượng để xem gợi ý phân bổ lô.
+                </div>
+            </td>
+            <td style="text-align: center; vertical-align: middle;">
+                <button type="button" class="button button--danger btn-remove-row" style="padding: 0; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;" title="Xóa dòng">
+                    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" style="stroke: currentColor; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; width: 14px; height: 14px; display: block;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </td>
+        `;
+
+        detailBody.appendChild(tr);
+
+        const searchInput = tr.querySelector('.input-search-product');
+        const hiddenInput = tr.querySelector('.row-ma-hang-hoa');
+        const qtyInput = tr.querySelector('.row-so-luong');
+        const suggestContainer = tr.querySelector('.fifo-suggest-container');
+
+        const triggerSuggest = () => {
+            const mhh = hiddenInput.value;
+            const qty = parseInt(qtyInput.value) || 0;
+
+            if (mhh === '' || qty <= 0) {
+                suggestContainer.innerHTML = 'Nhập sản phẩm & số lượng để xem gợi ý phân bổ lô.';
+                return;
+            }
+
+            suggestContainer.innerHTML = '<span class="text-info">Đang tính toán gợi ý...</span>';
+
+            fetch(`index.php?c=kho&a=suggest_fifo&ma_hang_hoa=${mhh}&qty=${qty}`)
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success) {
+                        const info = res.data;
+                        if (!info.enough) {
+                            suggestContainer.innerHTML = `<span class="text-danger" style="font-weight:bold;">Tồn kho không đủ! Chỉ còn tổng tồn: ${info.total_available}</span>`;
+                            return;
+                        }
+
+                        let html = '<ul style="margin:0; padding-left:1.2rem; text-align:left;">';
+                        info.suggestions.forEach(s => {
+                            html += `<li>Lô <strong>${s.ma_lo_hang}</strong> (HSD: ${formatDate(s.han_su_dung)}): Lấy <strong>${s.so_luong_xuat}</strong></li>`;
+                        });
+                        html += '</ul>';
+                        suggestContainer.innerHTML = html;
+                    } else {
+                        suggestContainer.innerHTML = `<span class="text-danger">${res.message}</span>`;
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    suggestContainer.innerHTML = '<span class="text-danger">Lỗi tải dữ liệu gợi ý.</span>';
+                });
+        };
+
+        setupAutocomplete(searchInput, (item) => {
+            hiddenInput.value = item.ma_hang_hoa;
+            triggerSuggest();
+        });
+
+        qtyInput.addEventListener('input', () => {
+            triggerSuggest();
+            updateAllTotals();
+        });
+
+        tr.querySelector('.btn-remove-row').addEventListener('click', () => {
+            tr.remove();
+            updateAllTotals();
+        });
+    }
+
+    function updateAllTotals() {
+        let totalQty = 0;
+        document.querySelectorAll('#detail-body tr').forEach(tr => {
+            const qty = parseInt(tr.querySelector('.row-so-luong').value) || 0;
+            totalQty += qty;
+        });
+        const totalQtyEl = document.getElementById('total-qty');
+        if (totalQtyEl) totalQtyEl.textContent = totalQty.toLocaleString('vi-VN');
+    }
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
 }
 
 //----------TỰ ĐỘNG KHỞI TẠO------------

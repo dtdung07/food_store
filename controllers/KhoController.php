@@ -19,6 +19,7 @@ class KhoController
     public function __construct()
     {
         $this->phieuNhapModel = new PhieuNhapModel();
+        $this->phieuXuatModel = new phieuXuatModel();
         $this->hangHoaModel = new HangHoaModel();
         $this->nhaCungCapModel = new NhaCungCapModel();
         $this->loHangModel = new LoHangModel();
@@ -151,8 +152,124 @@ class KhoController
         ]);
     }
 
-    //------AJAX API-------
+    //------Xuất kho ra quầy-----
 
+    //Danh sách phiếu xuất kho ra quầy
+    public function xuat_index(): void
+    {
+        require_permission('kho');
+
+        $filters = [
+            'q'         => trim((string) ($_GET['q'] ?? '')),
+            'date_from' => trim((string) ($_GET['date_from'] ?? '')),
+            'date_to'   => trim((string) ($_GET['date_to'] ?? '')),
+        ];
+
+        $exports = $this->phieuXuatModel->all($filters['q'], $filters['date_from'], $filters['date_to']);
+
+        render('kho/xuat_index', [
+            'pageTitle' => 'Xuất kho ra quầy',
+            'exports'   => $exports,
+            'filters'   => $filters,
+            'stats'     => [
+                'total_count' => $this->phieuXuatModel->count(),
+            ],
+        ]);
+    }
+
+    //Form lập phiếu xuất kho
+    public function xuat_form(): void
+    {
+        require_permission('kho');
+
+        $nextId = $this->phieuXuatModel->generateId();
+
+        render('kho/xuat_form', [
+            'pageTitle' => 'Lập phiếu xuất kho ra quầy',
+            'nextId'    => $nextId,
+            'errors'    => [],
+        ]);
+    }
+
+    //Xử lý lưu phiếu xuất kho
+    public function xuat_save(): void
+    {
+        require_permission('kho');
+
+        if (!is_post()) {
+            redirect_to('kho', 'xuat_index');
+        }
+
+        $header = [
+            'ghi_chu'      => trim((string) ($_POST['ghi_chu'] ?? '')),
+            'ma_nhan_vien' => current_user()['ma_nhan_vien'] ?? '',
+        ];
+
+        $details = [];
+        $maHangHoaArr = $_POST['ma_hang_hoa'] ?? [];
+        $soLuongArr = $_POST['so_luong'] ?? [];
+
+        for ($i = 0, $count = count($maHangHoaArr); $i < $count; $i++) {
+            $mhh = trim((string) ($maHangHoaArr[$i] ?? ''));
+            if ($mhh === '') {
+                continue;
+            }
+
+            $details[] = [
+                'ma_hang_hoa' => $mhh,
+                'so_luong'    => (int) ($soLuongArr[$i] ?? 0),
+            ];
+        }
+
+        $errors = $this->validateXuat($details);
+
+        if ($errors !== []) {
+            $nextId = $this->phieuXuatModel->generateId();
+            render('kho/xuat_form', [
+                'pageTitle' => 'Lập phiếu xuất kho ra quầy',
+                'nextId'    => $nextId,
+                'errors'    => $errors,
+                'old'       => $_POST,
+            ]);
+            return;
+        }
+
+        try {
+            $maPhieu = $this->phieuXuatModel->create($header, $details);
+            flash('success', "Xuất kho thành công! Mã phiếu: {$maPhieu}");
+            redirect_to('kho', 'xuat_detail', ['id' => $maPhieu]);
+        } catch (Throwable $e) {
+            flash('error', 'Lỗi xuất kho: ' . $e->getMessage());
+            $nextId = $this->phieuXuatModel->generateId();
+            render('kho/xuat_form', [
+                'pageTitle' => 'Lập phiếu xuất kho ra quầy',
+                'nextId'    => $nextId,
+                'errors'    => [$e->getMessage()],
+                'old'       => $_POST,
+            ]);
+        }
+    }
+
+    //Chi tiết phiếu xuất.
+    public function xuat_detail(): void
+    {
+        require_permission('kho');
+
+        $id = trim((string) ($_GET['id'] ?? ''));
+        $export = $id !== '' ? $this->phieuXuatModel->find($id) : null;
+
+        if ($export === null) {
+            flash('error', 'Không tìm thấy phiếu xuất.');
+            redirect_to('kho', 'xuat_index');
+        }
+
+        render('kho/xuat_detail', [
+            'pageTitle' => 'Chi tiết phiếu xuất: ' . $id,
+            'export'    => $export,
+        ]);
+    }
+
+    //------AJAX API-------
     //AJAX: Tìm kiếm hàng hóa (autocomplete)
     public function search_hang_hoa(): void
     {
@@ -197,6 +314,27 @@ class KhoController
 
         header('Content-Type: application/json');
         echo json_encode(['success' => true, 'code' => $newCode]);
+        exit;
+    }
+
+    //AJAX: Gợi ý FIFO cho xuất kho
+    public function suggest_fifo(): void
+    {
+        require_login();
+
+        $maHangHoa = trim((string) ($_GET['ma_hang_hoa'] ?? ''));
+        $qty = (int) ($_GET['qty'] ?? 0);
+
+        if ($maHangHoa === '' || $qty <= 0) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Thiếu thông tin.']);
+            exit;
+        }
+
+        $result = $this->phieuXuatModel->suggestFIFO($maHangHoa, $qty);
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'data' => $result]);
         exit;
     }
 
@@ -256,4 +394,28 @@ class KhoController
         return $errors;
     }
 
+    private function validateXuat(array $details): array
+    {
+        $errors = [];
+
+        if (empty($details)) {
+            $errors[] = 'Phiếu xuất phải có ít nhất 1 mặt hàng.';
+        }
+
+        foreach ($details as $i => $d) {
+            $row = $i + 1;
+
+            if ($d['so_luong'] <= 0) {
+                $errors[] = "Dòng {$row}: Số lượng phải lớn hơn 0.";
+            }
+
+            // Kiểm tra tồn kho
+            $tonKho = $this->loHangModel->getTotalStockInKho($d['ma_hang_hoa']);
+            if ($d['so_luong'] > $tonKho) {
+                $errors[] = "Dòng {$row}: Tồn kho không đủ. Yêu cầu: {$d['so_luong']}, Tồn kho: {$tonKho}.";
+            }
+        }
+
+        return $errors;
+    }
 }

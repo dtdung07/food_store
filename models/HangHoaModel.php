@@ -19,11 +19,16 @@ class HangHoaModel
     ): array {
         [$inner, $params] = $this->_buildQuery($keyword, $maDanhMuc, $trangThai);
 
-        $sql = "SELECT base.*, COALESCE(tk.ton_kho, 0) AS ton_kho
+        $sql = "SELECT base.*, 
+                       COALESCE(tk.total_stock, 0) AS ton_kho,
+                       COALESCE(tk.ton_trong_kho, 0) AS ton_trong_kho,
+                       COALESCE(tk.ton_ke, 0) AS ton_ke
                 FROM ({$inner}) AS base
                 LEFT JOIN (
                     SELECT ma_hang_hoa,
-                           SUM(so_luong_trong_kho + so_luong_tren_ke) AS ton_kho
+                           SUM(so_luong_trong_kho + so_luong_tren_ke) AS total_stock,
+                           SUM(so_luong_trong_kho) AS ton_trong_kho,
+                           SUM(so_luong_tren_ke) AS ton_ke
                     FROM lo_hang
                     GROUP BY ma_hang_hoa
                 ) tk ON tk.ma_hang_hoa = base.ma_hang_hoa
