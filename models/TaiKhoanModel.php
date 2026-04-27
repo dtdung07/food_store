@@ -18,12 +18,12 @@ class TaiKhoanModel
                 tk.ten_dang_nhap,
                 tk.trang_thai,
                 tk.ma_nhan_vien,
-                tk.ma_chuc_vu,
+                nv.ma_chuc_vu,
                 nv.ten_nhan_vien,
                 cv.ten_chuc_vu
              FROM tai_khoan tk
              LEFT JOIN nhan_vien nv ON nv.ma_nhan_vien = tk.ma_nhan_vien
-             LEFT JOIN chuc_vu cv ON cv.ma_chuc_vu = tk.ma_chuc_vu
+             LEFT JOIN chuc_vu cv ON cv.ma_chuc_vu = nv.ma_chuc_vu
              ORDER BY tk.ma_tai_khoan ASC"
         );
 
@@ -37,12 +37,12 @@ class TaiKhoanModel
                     tk.ten_dang_nhap,
                     tk.trang_thai,
                     tk.ma_nhan_vien,
-                    tk.ma_chuc_vu,
+                    nv.ma_chuc_vu,
                     nv.ten_nhan_vien,
                     cv.ten_chuc_vu
                  FROM tai_khoan tk
                  LEFT JOIN nhan_vien nv ON nv.ma_nhan_vien = tk.ma_nhan_vien
-                 LEFT JOIN chuc_vu cv ON cv.ma_chuc_vu = tk.ma_chuc_vu
+                 LEFT JOIN chuc_vu cv ON cv.ma_chuc_vu = nv.ma_chuc_vu
                  WHERE 1=1";
 
         $params = [];
@@ -77,12 +77,12 @@ class TaiKhoanModel
                 tk.ten_dang_nhap,
                 tk.trang_thai,
                 tk.ma_nhan_vien,
-                tk.ma_chuc_vu,
+                nv.ma_chuc_vu,
                 nv.ten_nhan_vien,
                 cv.ten_chuc_vu
              FROM tai_khoan tk
              LEFT JOIN nhan_vien nv ON nv.ma_nhan_vien = tk.ma_nhan_vien
-             LEFT JOIN chuc_vu cv ON cv.ma_chuc_vu = tk.ma_chuc_vu
+             LEFT JOIN chuc_vu cv ON cv.ma_chuc_vu = nv.ma_chuc_vu
              WHERE tk.ma_tai_khoan = :id
              LIMIT 1"
         );
@@ -101,12 +101,12 @@ class TaiKhoanModel
                 tk.password,
                 tk.trang_thai,
                 tk.ma_nhan_vien,
-                tk.ma_chuc_vu,
+                nv.ma_chuc_vu,
                 nv.ten_nhan_vien,
                 cv.ten_chuc_vu
              FROM tai_khoan tk
              LEFT JOIN nhan_vien nv ON nv.ma_nhan_vien = tk.ma_nhan_vien
-             LEFT JOIN chuc_vu cv ON cv.ma_chuc_vu = tk.ma_chuc_vu
+             LEFT JOIN chuc_vu cv ON cv.ma_chuc_vu = nv.ma_chuc_vu
              WHERE tk.ten_dang_nhap = :username
              LIMIT 1"
         );
@@ -126,14 +126,12 @@ class TaiKhoanModel
                     ten_dang_nhap,
                     password,
                     trang_thai,
-                    ma_nhan_vien,
-                    ma_chuc_vu
+                    ma_nhan_vien
                 ) VALUES (
                     :ten_dang_nhap,
                     :password,
                     :trang_thai,
-                    :ma_nhan_vien,
-                    :ma_chuc_vu
+                    :ma_nhan_vien
                 )"
             );
             $statement->execute([
@@ -141,11 +139,9 @@ class TaiKhoanModel
                 'password' => password_hash($data['password'], PASSWORD_DEFAULT),
                 'trang_thai' => $data['trang_thai'],
                 'ma_nhan_vien' => $data['ma_nhan_vien'],
-                'ma_chuc_vu' => $data['ma_chuc_vu'],
             ]);
 
             $newId = (int) $this->pdo->lastInsertId();
-            $this->syncEmployeeRole($data['ma_nhan_vien'], $data['ma_chuc_vu']);
 
             $this->pdo->commit();
 
@@ -165,14 +161,12 @@ class TaiKhoanModel
                 'ten_dang_nhap = :ten_dang_nhap',
                 'trang_thai = :trang_thai',
                 'ma_nhan_vien = :ma_nhan_vien',
-                'ma_chuc_vu = :ma_chuc_vu',
             ];
             $params = [
                 'id' => $id,
                 'ten_dang_nhap' => $data['ten_dang_nhap'],
                 'trang_thai' => $data['trang_thai'],
                 'ma_nhan_vien' => $data['ma_nhan_vien'],
-                'ma_chuc_vu' => $data['ma_chuc_vu'],
             ];
 
             if ($data['password'] !== '') {
@@ -184,8 +178,6 @@ class TaiKhoanModel
                 'UPDATE tai_khoan SET ' . implode(', ', $fields) . ' WHERE ma_tai_khoan = :id'
             );
             $statement->execute($params);
-
-            $this->syncEmployeeRole($data['ma_nhan_vien'], $data['ma_chuc_vu']);
 
             $this->pdo->commit();
         } catch (Throwable $exception) {
@@ -232,12 +224,12 @@ class TaiKhoanModel
                 tk.ten_dang_nhap,
                 tk.trang_thai,
                 tk.ma_nhan_vien,
-                tk.ma_chuc_vu,
+                nv.ma_chuc_vu,
                 nv.ten_nhan_vien,
                 cv.ten_chuc_vu
              FROM tai_khoan tk
              LEFT JOIN nhan_vien nv ON nv.ma_nhan_vien = tk.ma_nhan_vien
-             LEFT JOIN chuc_vu cv ON cv.ma_chuc_vu = tk.ma_chuc_vu
+             LEFT JOIN chuc_vu cv ON cv.ma_chuc_vu = nv.ma_chuc_vu
              WHERE tk.ma_tai_khoan = :id
              LIMIT 1"
         );
@@ -255,12 +247,12 @@ class TaiKhoanModel
                 tk.ten_dang_nhap,
                 tk.trang_thai,
                 tk.ma_nhan_vien,
-                tk.ma_chuc_vu,
+                nv.ma_chuc_vu,
                 nv.ten_nhan_vien,
                 cv.ten_chuc_vu
              FROM tai_khoan tk
              LEFT JOIN nhan_vien nv ON nv.ma_nhan_vien = tk.ma_nhan_vien
-             LEFT JOIN chuc_vu cv ON cv.ma_chuc_vu = tk.ma_chuc_vu
+             LEFT JOIN chuc_vu cv ON cv.ma_chuc_vu = nv.ma_chuc_vu
              WHERE tk.ma_nhan_vien = :employee_id
              LIMIT 1"
         );
@@ -270,14 +262,23 @@ class TaiKhoanModel
         return $account ?: null;
     }
 
-    private function syncEmployeeRole(string $employeeId, string $roleId): void
+    public function hasTransactions(string $employeeId): bool
     {
-        $statement = $this->pdo->prepare(
-            'UPDATE nhan_vien SET ma_chuc_vu = :ma_chuc_vu WHERE ma_nhan_vien = :ma_nhan_vien'
-        );
-        $statement->execute([
-            'ma_chuc_vu' => $roleId,
-            'ma_nhan_vien' => $employeeId,
-        ]);
+        $queries = [
+            'SELECT COUNT(*) FROM hoa_don WHERE ma_nhan_vien = :id',
+            'SELECT COUNT(*) FROM phieu_nhap_hang WHERE ma_nhan_vien = :id',
+            'SELECT COUNT(*) FROM phieu_xuat_hang WHERE ma_nhan_vien = :id',
+            'SELECT COUNT(*) FROM phieu_huy_hang WHERE ma_nhan_vien = :id'
+        ];
+
+        foreach ($queries as $sql) {
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute(['id' => $employeeId]);
+            if (((int) $statement->fetchColumn()) > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

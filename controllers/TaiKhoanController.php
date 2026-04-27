@@ -127,6 +127,18 @@ class TaiKhoanController
             redirect_to('tai-khoan', 'index');
         }
 
+        //Chặn xóa tài khoản nếu nhân viên liên kết đã có giao dịch phát sinh
+        $account = $this->taiKhoanModel->findById($id);
+        if ($account !== null && $this->taiKhoanModel->hasTransactions((string) ($account['ma_nhan_vien'] ?? ''))) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Không thể xóa tài khoản của nhân viên đã phát sinh giao dịch. Vui lòng sử dụng chức năng vô hiệu hóa tài khoản.']);
+                exit;
+            }
+            flash('error', 'Không thể xóa tài khoản của nhân viên đã phát sinh giao dịch. Vui lòng sử dụng chức năng vô hiệu hóa tài khoản.');
+            redirect_to('tai-khoan', 'index');
+        }
+
         try {
             $this->taiKhoanModel->delete($id);
             if ($isAjax) {
@@ -155,7 +167,6 @@ class TaiKhoanController
             'password' => (string) ($_POST['password'] ?? ''),
             'trang_thai' => trim((string) ($_POST['trang_thai'] ?? 'HOAT_DONG')),
             'ma_nhan_vien' => trim((string) ($_POST['ma_nhan_vien'] ?? '')),
-            'ma_chuc_vu' => trim((string) ($_POST['ma_chuc_vu'] ?? '')),
         ];
     }
 
@@ -165,6 +176,8 @@ class TaiKhoanController
 
         if ($input['ten_dang_nhap'] === '') {
             $errors[] = 'Tên đăng nhập là bắt buộc.';
+        } elseif (strlen($input['ten_dang_nhap']) < 4 || strlen($input['ten_dang_nhap']) > 50) {
+            $errors[] = 'Tên đăng nhập phải từ 4 đến 50 ký tự.';
         }
 
         if (!$isEdit && $input['password'] === '') {
@@ -177,10 +190,6 @@ class TaiKhoanController
 
         if ($input['ma_nhan_vien'] === '') {
             $errors[] = 'Hãy chọn nhân viên gắn với tài khoản.';
-        }
-
-        if ($input['ma_chuc_vu'] === '') {
-            $errors[] = 'Hãy chọn vai trò phân quyền.';
         }
 
         if (!in_array($input['trang_thai'], ['HOAT_DONG', 'VO_HIEU_HOA'], true)) {
@@ -198,7 +207,6 @@ class TaiKhoanController
             'pageTitle' => $isEdit ? 'Cập nhật tài khoản' : 'Thêm tài khoản',
             'account' => $account,
             'errors' => $errors,
-            'roles' => $this->chucVuModel->all(),
             'employees' => $this->taiKhoanModel->availableEmployees($currentEmployeeId),
             'isEdit' => $isEdit,
         ]);

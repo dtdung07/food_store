@@ -49,7 +49,13 @@ class NhanVienController
             redirect_to('nhan-vien', 'index');
         }
 
-        $this->renderForm($employee, [], $employee !== null);
+        if ($employee === null) {
+            $employee = [
+                'ma_nhan_vien' => $this->nhanVienModel->generateNextEmployeeCode(),
+            ];
+        }
+
+        $this->renderForm($employee, [], $id !== '');
     }
 
     public function save(): void
@@ -62,6 +68,12 @@ class NhanVienController
 
         $input = $this->collectInput();
         $isEdit = (string) ($_POST['is_edit'] ?? '0') === '1';
+        
+        //Nếu thêm mới, sinh lại mã để đảm bảo không bị trùng lặp do cạnh tranh
+        if (!$isEdit) {
+            $input['ma_nhan_vien'] = $this->nhanVienModel->generateNextEmployeeCode();
+        }
+        
         $errors = $this->validate($input);
 
         if ($errors !== []) {
@@ -126,6 +138,18 @@ class NhanVienController
             redirect_to('nhan-vien', 'index');
         }
 
+        //Chặn xóa nhân viên nếu có tài khoản liên kết
+        $hasAccount = $this->taiKhoanModel->sessionPayloadByEmployeeId($id);
+        if ($hasAccount !== null) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Nhân viên đã có tài khoản hệ thống. Vui lòng vô hiệu hóa/xóa tài khoản trước khi xóa thông tin nhân viên.']);
+                exit;
+            }
+            flash('error', 'Nhân viên đã có tài khoản hệ thống. Vui lòng vô hiệu hóa/xóa tài khoản trước khi xóa thông tin nhân viên.');
+            redirect_to('nhan-vien', 'index');
+        }
+
         try {
             $this->nhanVienModel->delete($id);
             if ($isAjax) {
@@ -176,8 +200,23 @@ class NhanVienController
             $errors[] = 'Email không đúng định dạng.';
         }
 
-        if ($input['ngay_sinh'] !== '' && DateTimeImmutable::createFromFormat('Y-m-d', $input['ngay_sinh']) === false) {
-            $errors[] = 'Ngày sinh không đúng định dạng.';
+        if ($input['ngay_sinh'] !== '') {
+            $dob = DateTimeImmutable::createFromFormat('Y-m-d', $input['ngay_sinh']);
+            if ($dob === false) {
+                $errors[] = 'Ngày sinh không đúng định dạng.';
+            } else {
+                $today = new DateTimeImmutable('today');
+                $age = $today->diff($dob)->y;
+                if ($age < 18) {
+                    $errors[] = 'Nhân viên phải từ 18 tuổi trở lên.';
+                }
+            }
+        }
+
+        if ($input['so_dien_thoai'] !== '') {
+            if (!preg_match('/^[0-9]{10}$/', $input['so_dien_thoai'])) {
+                $errors[] = 'Số điện thoại phải gồm 10 chữ số.';
+            }
         }
 
         if ($input['ma_chuc_vu'] === '') {

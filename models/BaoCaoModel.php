@@ -116,7 +116,7 @@ class BaoCaoModel
             "SELECT
                 ph.ma_phieu_huy,
                 ph.ngay_tao,
-                ph.ly_do_huy,
+                ph.ly_do_huy_chung,
                 ph.trang_thai,
                 COALESCE(nv.ten_nhan_vien, 'Chưa gắn nhân viên') AS ten_nhan_vien,
                 COALESCE(SUM(chl.so_luong), 0) AS tong_so_luong_huy,
@@ -132,7 +132,7 @@ class BaoCaoModel
              GROUP BY
                 ph.ma_phieu_huy,
                 ph.ngay_tao,
-                ph.ly_do_huy,
+                ph.ly_do_huy_chung,
                 ph.trang_thai,
                 COALESCE(nv.ten_nhan_vien, 'Chưa gắn nhân viên')
              ORDER BY ph.ngay_tao DESC, ph.ma_phieu_huy DESC"

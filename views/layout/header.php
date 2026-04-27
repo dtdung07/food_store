@@ -39,7 +39,7 @@
                             </a>
                         <?php endif; ?>
                     </div>
-
+                    <?php if (can_access('nhan-vien') || can_access('tai-khoan')): ?>
                     <div class="sidebar__section">
                         <span class="sidebar__section-label">Người dùng</span>
                         <?php if (can_access('nhan-vien')): ?>
@@ -59,7 +59,9 @@
                             </a>
                         <?php endif; ?>
                     </div>
-
+                    <?php endif; ?>
+                    
+                    <?php if (can_access('danh-muc') || can_access('hang-hoa') || can_access('nha-cung-cap')): ?>
                     <div class="sidebar__section">
                         <span class="sidebar__section-label">Quản lý</span>
                         <?php if (can_access('danh-muc')): ?>
@@ -87,6 +89,7 @@
                             </a>
                         <?php endif; ?>
                     </div>
+                    <?php endif; ?>
 
                     <?php if (can_access('kho')): ?>
                         <div class="sidebar__section">

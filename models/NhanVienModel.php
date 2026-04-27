@@ -132,16 +132,6 @@ class NhanVienModel
             );
             $statement->execute($this->normalizePayload($data));
 
-            $syncStatement = $this->pdo->prepare(
-                "UPDATE tai_khoan
-                 SET ma_chuc_vu = :ma_chuc_vu
-                 WHERE ma_nhan_vien = :ma_nhan_vien"
-            );
-            $syncStatement->execute([
-                'ma_chuc_vu' => $data['ma_chuc_vu'],
-                'ma_nhan_vien' => $id,
-            ]);
-
             $this->pdo->commit();
         } catch (Throwable $exception) {
             $this->pdo->rollBack();
@@ -153,6 +143,27 @@ class NhanVienModel
     {
         $statement = $this->pdo->prepare('DELETE FROM nhan_vien WHERE ma_nhan_vien = :id');
         $statement->execute(['id' => $id]);
+    }
+
+    public function generateNextEmployeeCode(): string
+    {
+        $statement = $this->pdo->query(
+            "SELECT ma_nhan_vien 
+             FROM nhan_vien 
+             WHERE ma_nhan_vien REGEXP '^NV[0-9]+$' 
+             ORDER BY ma_nhan_vien DESC 
+             LIMIT 1"
+        );
+        $lastCode = $statement->fetchColumn();
+
+        if (!$lastCode) {
+            return 'NV001';
+        }
+
+        $numberPart = (int) substr((string) $lastCode, 2);
+        $nextNumber = $numberPart + 1;
+
+        return 'NV' . str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT);
     }
 
     private function normalizePayload(array $data): array

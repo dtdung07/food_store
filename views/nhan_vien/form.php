@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $employee = $employee ?? [];
 $errors = $errors ?? [];
 $roles = $roles ?? [];
@@ -26,7 +26,7 @@ $isEdit = $isEdit ?? false;
 
         <div class="field">
             <label for="ma_nhan_vien">Mã nhân viên</label>
-            <input id="ma_nhan_vien" name="ma_nhan_vien" value="<?= e($employee['ma_nhan_vien'] ?? '') ?>" <?= $isEdit ? 'readonly' : '' ?> required>
+            <input id="ma_nhan_vien" name="ma_nhan_vien" value="<?= e($employee['ma_nhan_vien'] ?? '') ?>" readonly required style="font-weight: bold; background-color: #eff2f7; cursor: not-allowed;">
         </div>
 
         <div class="field">

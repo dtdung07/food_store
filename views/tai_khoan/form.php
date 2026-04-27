@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $account = $account ?? [];
 $errors = $errors ?? [];
 $roles = $roles ?? [];
@@ -52,15 +52,9 @@ $isEdit = $isEdit ?? false;
         </div>
 
         <div class="field">
-            <label for="ma_chuc_vu">Vai trò</label>
-            <select id="ma_chuc_vu" name="ma_chuc_vu" required>
-                <option value="">Chọn vai trò</option>
-                <?php foreach ($roles as $role): ?>
-                    <option value="<?= e($role['ma_chuc_vu']) ?>" <?= ($account['ma_chuc_vu'] ?? '') === $role['ma_chuc_vu'] ? 'selected' : '' ?>>
-                        <?= e($role['ten_chuc_vu']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <label for="vai_tro">Vai trò</label>
+            <input id="vai_tro" type="text" value="<?= e($account['ten_chuc_vu'] ?? 'Sẽ tự động hiển thị theo nhân viên') ?>" readonly style="background-color: #f3f4f6; color: #6b7280; cursor: not-allowed;">
+            <!-- <p style="font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem;">Vai trò truy cập được tự động lấy từ chức vụ của nhân viên liên kết.</p> -->
         </div>
 
         <div class="field">
