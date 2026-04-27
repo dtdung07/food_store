@@ -12,7 +12,8 @@ $controllerMap = [
     'danh-muc' => 'DanhMucController',
     'hang-hoa' => 'HangHoaController',
     'nha-cung-cap' => 'NhaCungCapController',
-    'kho' => 'KhoController'
+    'kho' => 'KhoController',
+    'phieu-huy' => 'PhieuHuyController'
 ];
 
 $route = current_route();

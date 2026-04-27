@@ -105,6 +105,24 @@
                             </a>
                         </div>
                     <?php endif; ?>
+
+                    <?php if (can_access('phieu-huy')): ?>
+                        <div class="sidebar__section">
+                            <span class="sidebar__section-label">Kiểm soát</span>
+                            <a class="nav-link <?= $route['controller'] === 'phieu-huy' ? 'is-active' : '' ?>" href="<?= e(url_for('phieu-huy', 'index')) ?>">
+                                <span class="nav-link__icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                </span>
+                                <span>Phiếu hủy</span>
+                                <?php 
+                                $pendingCount = pending_disposal_count();
+                                if ($pendingCount > 0 && in_array(current_user()['ma_chuc_vu'] ?? '', ['ADMIN', 'QUAN_LY'], true)): 
+                                ?>
+                                    <span class="badge badge--warning" style="margin-left: auto; padding: 2px 6px; font-size: 0.75rem; border-radius: 10px;"><?= $pendingCount ?></span>
+                                <?php endif; ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </nav>
 
                 <div class="sidebar__footer">

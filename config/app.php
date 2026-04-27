@@ -47,7 +47,8 @@ const MODULE_ACCESS = [
     'danh-muc' => ['ADMIN', 'QUAN_LY'],
     'hang-hoa' => ['ADMIN', 'QUAN_LY', 'THU_KHO'],
     'nha-cung-cap' => ['ADMIN', 'QUAN_LY', 'THU_KHO'],
-    'kho' => ['ADMIN', 'QUAN_LY', 'THU_KHO']
+    'kho' => ['ADMIN', 'QUAN_LY', 'THU_KHO'],
+    'phieu-huy' => ['ADMIN', 'QUAN_LY', 'THU_KHO', 'NV_QUAY_CAN']
 ];
 
 function current_route(): array
@@ -370,6 +371,16 @@ function expiring_product_count(int $days = 30): int
     }
 
     return $cache[$days];
+}
+
+function pending_disposal_count(): int
+{
+    try {
+        $stmt = db()->query("SELECT COUNT(*) FROM phieu_huy_hang WHERE trang_thai = 'CHO_DUYET'");
+        return (int) $stmt->fetchColumn();
+    } catch (Throwable) {
+        return 0;
+    }
 }
 
 function user_initials(?string $name): string
