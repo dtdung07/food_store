@@ -1,6 +1,13 @@
 //JavaScript cho nghiệp vụ Phiếu hủy hàng
 let phRowIdx = 0;
 
+// Khi click vào ô nhập số, bôi đen toàn bộ nội dung để nhập nhanh
+document.addEventListener('click', (e) => {
+    if (e.target.type === 'number' || e.target.type === 'text') {
+        e.target.select();
+    }
+});
+
 //Hàm autocomplete tìm kiếm hàng hóa
 function setupPhAutocomplete(inputEl, onSelect) {
     const wrapper = document.createElement('div');
@@ -90,18 +97,20 @@ function initPhieuHuyForm() {
                 const searchInputVal = searchInput ? searchInput.value : '';
                 const qtyInput = tr.querySelector('.row-so-luong');
                 if (!qtyInput) return;
-                const qty = parseInt(qtyInput.value) || 0;
+                const qty = parseFloat(qtyInput.value) || 0;
 
                 // Lấy tồn kho đã lưu ở dataset
-                const tonTrongKho = parseInt(qtyInput.dataset.tonTrongKho) || 0;
-                const tonKe = parseInt(qtyInput.dataset.tonKe) || 0;
+                const tonTrongKho = parseFloat(qtyInput.dataset.tonTrongKho) || 0;
+                const tonKe = parseFloat(qtyInput.dataset.tonKe) || 0;
                 const totalStock = tonTrongKho + tonKe;
 
                 if (qty > totalStock) {
                     hasExceeded = true;
                     // Lấy tên sản phẩm hiển thị ngắn gọn
                     const prodName = searchInputVal.split(' - ')[1] || searchInputVal || `Dòng ${i + 1}`;
-                    warningMessages.push(`- <strong>${prodName}</strong>: Số lượng hủy (${qty}) vượt quá tồn kho hiện tại (${totalStock})`);
+                    const qtyFormatted = new Intl.NumberFormat('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 3 }).format(qty);
+                    const totalStockFormatted = new Intl.NumberFormat('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 3 }).format(totalStock);
+                    warningMessages.push(`- <strong>${prodName}</strong>: Số lượng hủy (${qtyFormatted}) vượt quá tồn kho hiện tại (${totalStockFormatted})`);
                 }
             });
 
@@ -135,54 +144,67 @@ function initPhieuHuyForm() {
 
     function addPhieuHuyRow() {
         const idx = phRowIdx++;
-        const tr = document.createElement('tr');
-        tr.id = `row-${idx}`;
-        tr.innerHTML = `
-            <td>
-                <input type="text" class="input-search-product" placeholder="Nhập tên/mã hàng..." required autocomplete="off" style="padding: 8px 12px; border-radius: 12px;">
-                <input type="hidden" name="ma_hang_hoa[]" class="row-ma-hang-hoa">
-            </td>
-            <td>
-                <input type="number" name="so_luong[]" class="row-so-luong" min="1" value="1" required style="padding: 8px 12px; border-radius: 12px; text-align: right; width: 90px;">
-            </td>
-            <td>
-                <input type="text" class="row-don-gia-label" readonly style="padding: 8px 12px; border-radius: 12px; text-align: right; background: var(--gray-soft); cursor: not-allowed; width: 125px;" value="0 VND">
-                <input type="hidden" class="row-don-gia" value="0">
-            </td>
-            <td style="text-align: right; vertical-align: middle;">
-                <span class="row-thanh-tien" style="font-weight: bold; color: var(--blue);">0 VND</span>
-            </td>
-            <td>
-                <select name="ly_do_detail_select[]" class="row-ly-do" required style="padding: 8px 12px; border-radius: 12px; height: 38px; width: 100%;">
-                    <option value="HET_HAN">Hết hạn sử dụng</option>
-                    <option value="HONG_THOI">Hư hỏng, thối</option>
-                    <option value="NAT_VO">Dập nát, vỡ</option>
-                    <option value="LOI_QC">Không đạt chất lượng</option>
-                    <option value="KHAC">Khác</option>
-                </select>
-                <input type="text" name="ly_do_detail_custom[]" class="row-ly-do-custom" placeholder="Nhập lý do chi tiết..." style="display:none; margin-top: 8px; padding: 8px 12px; border-radius: 12px; width: 100%; border: 1px solid var(--line);">
-            </td>
-            <td style="vertical-align: middle;">
-                <span class="row-ton-kho text-muted" style="font-weight:500; font-size: 15px;">Kho: 0 | Kệ: 0</span>
-            </td>
-            <td style="text-align: center; vertical-align: middle;">
-                <button type="button" class="button button--danger btn-remove-row" style="padding: 0; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;" title="Xóa dòng">
+        const card = document.createElement('div');
+        card.id = `row-${idx}`;
+        card.style.cssText = 'background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 20px; position: relative; transition: box-shadow 0.2s;';
+        card.innerHTML = `
+            <div style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px;">
+                <div style="flex: 1; min-width: 0;">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Hàng hóa <span style="color:var(--red)">*</span></label>
+                    <input type="text" class="input-search-product" placeholder="Nhập tên hoặc mã hàng hóa để tìm kiếm..." required autocomplete="off" style="width: 100%; padding: 10px 14px; border-radius: 12px; font-size: 15px; box-sizing: border-box;">
+                    <input type="hidden" name="ma_hang_hoa[]" class="row-ma-hang-hoa">
+                </div>
+                <button type="button" class="button button--danger btn-remove-row" style="padding: 0; width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 26px;" title="Xóa dòng">
                     <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" style="stroke: currentColor; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; width: 14px; height: 14px; display: block;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
-            </td>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+                <div style="min-width: 110px;">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Số lượng hủy <span style="color:var(--red)">*</span></label>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <input type="number" name="so_luong[]" class="row-so-luong" min="1" value="1" required style="width: 100px; padding: 10px 12px; border-radius: 12px; font-size: 15px; font-weight: 700; text-align: right; box-sizing: border-box;">
+                        <span class="row-dvt" style="font-size: 13px; color: var(--muted); font-weight: 500; white-space: nowrap;"></span>
+                    </div>
+                </div>
+                <div style="min-width: 140px;">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Giá bán (tham chiếu)</label>
+                    <input type="text" class="row-don-gia-label" readonly style="width: 100%; padding: 10px 14px; border-radius: 12px; text-align: right; background: var(--surface-soft); cursor: not-allowed; font-weight: 600; box-sizing: border-box;" value="0 VND">
+                    <input type="hidden" class="row-don-gia" value="0">
+                </div>
+                <div style="min-width: 130px; text-align: right;">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Thất thoát</label>
+                    <span class="row-thanh-tien" style="font-weight: 700; color: var(--blue); font-size: 15px; line-height: 42px; display: block;">0 VND</span>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Lý do hủy <span style="color:var(--red)">*</span></label>
+                    <select name="ly_do_detail_select[]" class="row-ly-do" required style="padding: 10px 14px; border-radius: 12px; width: 100%; box-sizing: border-box;">
+                        <option value="HET_HAN">Hết hạn sử dụng</option>
+                        <option value="HONG_THOI">Hư hỏng, thối</option>
+                        <option value="NAT_VO">Dập nát, vỡ</option>
+                        <option value="LOI_QC">Không đạt chất lượng</option>
+                        <option value="KHAC">Khác</option>
+                    </select>
+                    <input type="text" name="ly_do_detail_custom[]" class="row-ly-do-custom" placeholder="Nhập lý do chi tiết..." style="display:none; margin-top: 8px; padding: 10px 14px; border-radius: 12px; width: 100%; box-sizing: border-box;">
+                </div>
+                <div style="min-width: 140px;">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Tồn kho hiện tại</label>
+                    <span class="row-ton-kho text-muted" style="font-weight: 500; font-size: 14px; padding: 10px 14px; background: var(--surface-soft); border-radius: 12px; display: block; text-align: center;">Kho: 0 | Kệ: 0</span>
+                </div>
+            </div>
         `;
 
-        detailBody.appendChild(tr);
+        detailBody.appendChild(card);
 
-        const searchInput = tr.querySelector('.input-search-product');
-        const hiddenInput = tr.querySelector('.row-ma-hang-hoa');
-        const qtyInput = tr.querySelector('.row-so-luong');
-        const priceLabelInput = tr.querySelector('.row-don-gia-label');
-        const priceInput = tr.querySelector('.row-don-gia');
-        const tonSpan = tr.querySelector('.row-ton-kho');
-        const totalSpan = tr.querySelector('.row-thanh-tien');
-        const reasonSelect = tr.querySelector('.row-ly-do');
-        const customReasonInput = tr.querySelector('.row-ly-do-custom');
+        const searchInput = card.querySelector('.input-search-product');
+        const hiddenInput = card.querySelector('.row-ma-hang-hoa');
+        const qtyInput = card.querySelector('.row-so-luong');
+        const dvtSpan = card.querySelector('.row-dvt');
+        const priceLabelInput = card.querySelector('.row-don-gia-label');
+        const priceInput = card.querySelector('.row-don-gia');
+        const tonSpan = card.querySelector('.row-ton-kho');
+        const totalSpan = card.querySelector('.row-thanh-tien');
+        const reasonSelect = card.querySelector('.row-ly-do');
+        const customReasonInput = card.querySelector('.row-ly-do-custom');
 
         //Xử lý ẩn hiện ô nhập lý do tự do khi chọn 'Khác'
         reasonSelect.addEventListener('change', function () {
@@ -199,11 +221,16 @@ function initPhieuHuyForm() {
 
         setupPhAutocomplete(searchInput, (item) => {
             hiddenInput.value = item.ma_hang_hoa;
-            tonSpan.textContent = `Kho: ${item.ton_trong_kho} | Kệ: ${item.ton_ke}`;
+            dvtSpan.textContent = item.don_vi_tinh || '';
             tonSpan.className = 'row-ton-kho';
 
-            const tonTrongKho = parseInt(item.ton_trong_kho) || 0;
-            const tonKe = parseInt(item.ton_ke) || 0;
+            const tonTrongKho = parseFloat(item.ton_trong_kho) || 0;
+            const tonKe = parseFloat(item.ton_ke) || 0;
+
+            const tonTrongKhoFormatted = new Intl.NumberFormat('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 3 }).format(tonTrongKho);
+            const tonKeFormatted = new Intl.NumberFormat('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 3 }).format(tonKe);
+            tonSpan.textContent = `Kho: ${tonTrongKhoFormatted} | Kệ: ${tonKeFormatted}`;
+
             if (tonTrongKho + tonKe === 0) {
                 tonSpan.style.color = 'var(--red, #e73f73)';
             } else {
@@ -214,6 +241,16 @@ function initPhieuHuyForm() {
             qtyInput.dataset.tonTrongKho = tonTrongKho;
             qtyInput.dataset.tonKe = tonKe;
 
+            //Đặt min và step động dựa trên ma_tem_can
+            if (item.ma_tem_can) {
+                qtyInput.step = "0.001";
+                qtyInput.min = "0.001";
+            } else {
+                qtyInput.step = "1";
+                qtyInput.min = "1";
+                qtyInput.value = Math.round(parseFloat(qtyInput.value) || 1);
+            }
+
             //Gán đơn giá
             const price = parseFloat(item.gia_ban) || 0;
             priceInput.value = price;
@@ -223,7 +260,7 @@ function initPhieuHuyForm() {
         });
 
         const updateRowTotal = () => {
-            const qty = parseInt(qtyInput.value) || 0;
+            const qty = parseFloat(qtyInput.value) || 0;
             const price = parseFloat(priceInput.value) || 0;
             const total = qty * price;
             totalSpan.textContent = total.toLocaleString('vi-VN') + ' VND';
@@ -232,25 +269,33 @@ function initPhieuHuyForm() {
 
         qtyInput.addEventListener('input', updateRowTotal);
 
-        tr.querySelector('.btn-remove-row').addEventListener('click', () => {
-            tr.remove();
+        card.querySelector('.btn-remove-row').addEventListener('click', () => {
+            card.remove();
             updateAllTotals();
         });
+
+        card.addEventListener('mouseenter', () => card.style.boxShadow = 'var(--shadow-soft)');
+        card.addEventListener('mouseleave', () => card.style.boxShadow = 'none');
     }
 
     //Hàm tính tổng số lượng và tổng tiền thất thoát
     function updateAllTotals() {
         let totalQty = 0;
         let totalAmount = 0;
-        document.querySelectorAll('#detail-body tr').forEach(tr => {
-            const qty = parseInt(tr.querySelector('.row-so-luong').value) || 0;
-            const price = parseFloat(tr.querySelector('.row-don-gia').value) || 0;
+        document.querySelectorAll('#detail-body > div').forEach(card => {
+            const qty = parseFloat(card.querySelector('.row-so-luong').value) || 0;
+            const price = parseFloat(card.querySelector('.row-don-gia').value) || 0;
             totalQty += qty;
             totalAmount += qty * price;
         });
         const totalQtyEl = document.getElementById('total-qty');
         const totalAmountEl = document.getElementById('total-amount');
-        if (totalQtyEl) totalQtyEl.textContent = totalQty.toLocaleString('vi-VN');
+        if (totalQtyEl) {
+            totalQtyEl.textContent = new Intl.NumberFormat('vi-VN', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 3
+            }).format(totalQty);
+        }
         if (totalAmountEl) totalAmountEl.textContent = totalAmount.toLocaleString('vi-VN') + ' VND';
     }
 }
@@ -358,3 +403,15 @@ document.addEventListener('htmx:beforeSwap', function () {
     }
     document.body.style.overflow = '';
 });
+
+//Tự động bôi đen toàn bộ khi click/focus vào ô số lượng để nhập liệu nhanh
+document.addEventListener('focus', function (e) {
+    if (e.target && e.target.classList.contains('row-so-luong')) {
+        setTimeout(() => {
+            if (typeof e.target.select === 'function') {
+                e.target.select();
+            }
+        }, 50);
+    }
+}, true);
+

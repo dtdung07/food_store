@@ -34,7 +34,6 @@ $errors = $errors ?? [];
             <input type="text" id="nguoi_lap" value="<?= e($currentUser['ten_nhan_vien'] ?? $currentUser['ten_dang_nhap'] ?? 'Người dùng') ?>" readonly style="background: var(--gray-soft); cursor: not-allowed;">
         </div>
 
-
         <div class="field field--full">
             <label for="ghi_chu">Ghi chú</label>
             <textarea name="ghi_chu" id="ghi_chu" rows="2" placeholder="Ghi chú thêm về phiếu xuất..."><?= e($old['ghi_chu'] ?? '') ?></textarea>
@@ -52,30 +51,12 @@ $errors = $errors ?? [];
                 </button>
             </div>
 
-            <div class="table-card table-card--flush">
-                <div class="table-wrap">
-                    <table id="table-details">
-                        <thead>
-                            <tr>
-                                <th>Hàng hóa <span style="color: var(--red);">*</span></th>
-                                <th style="width:150px; text-align: right;">Số lượng xuất <span style="color: var(--red);">*</span></th>
-                                <th style="width:320px">Gợi ý phân bổ Lô (FIFO)</th>
-                                <th style="width:50px"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="detail-body">
-                            <!-- Các dòng sẽ được thêm bằng JS -->
-                        </tbody>
-                        <tfoot>
-                            <tr style="background: var(--surface-soft); font-weight: 700;">
-                                <td style="text-align: right; padding: 22px 18px;">Tổng số lượng xuất:</td>
-                                <td style="text-align: right; padding: 22px 18px;"><strong id="total-qty">0</strong></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+            <div id="detail-body" style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Các dòng sẽ được thêm bằng JS -->
+            </div>
+
+            <div style="margin-top: 16px; padding: 18px 24px; background: var(--surface-soft); border-radius: 16px; display: flex; justify-content: flex-end; align-items: center; gap: 40px; font-weight: 700; font-size: 15px;">
+                <span>Tổng số lượng xuất: <strong id="total-qty" style="color: var(--text); font-size: 16px; margin-left: 8px;">0</strong></span>
             </div>
         </div>
 

@@ -106,7 +106,7 @@ class PhieuHuyController
 
             $details[] = [
                 'ma_hang_hoa' => $mhh,
-                'so_luong'    => (int) ($soLuongArr[$i] ?? 0),
+                'so_luong'    => (float) ($soLuongArr[$i] ?? 0.0),
                 'ly_do_huy'   => $lyDoHuy,
             ];
         }
@@ -266,6 +266,17 @@ class PhieuHuyController
 
             if ($d['so_luong'] <= 0) {
                 $errors[] = "Dòng {$row}: Số lượng hủy phải lớn hơn 0.";
+            }
+
+            // Kiểm tra hàng đóng gói hay hàng cân
+            $hangHoa = $this->hangHoaModel->findById($d['ma_hang_hoa']);
+            if ($hangHoa !== null) {
+                if (empty($hangHoa['ma_tem_can'])) {
+                    // Hàng đóng gói, bắt buộc số nguyên
+                    if (fmod((float) $d['so_luong'], 1.0) !== 0.0) {
+                        $errors[] = "Dòng {$row}: Sản phẩm '{$hangHoa['ten_hang_hoa']}' là hàng đóng gói, số lượng hủy phải là số nguyên.";
+                    }
+                }
             }
 
             if ($d['ly_do_huy'] === '') {

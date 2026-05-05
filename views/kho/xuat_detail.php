@@ -1,6 +1,12 @@
 <?php
 declare(strict_types=1);
 $export = $export ?? [];
+
+$formatQty = static function (mixed $value): string {
+    $number = (float) $value;
+    $formatted = number_format($number, 3, ',', '.');
+    return rtrim(rtrim($formatted, '0'), ',');
+};
 ?>
 <section class="page-hero">
     <div>
@@ -36,7 +42,7 @@ $export = $export ?? [];
         </div>
         <div class="field">
             <label>Tổng số lượng xuất</label>
-            <div style="font-size: 16px;"><span class="badge badge--neutral"><?= e(number_format((int) $export['tong_so_luong'])) ?> sản phẩm</span></div>
+            <div style="font-size: 16px;"><span class="badge badge--neutral"><?= e($formatQty($export['tong_so_luong'])) ?> sản phẩm</span></div>
         </div>
         <?php if (!empty($export['ghi_chu'])): ?>
             <div class="field field--full">
@@ -74,7 +80,7 @@ $export = $export ?? [];
                         <td><code><?= e($ct['ma_hang_hoa']) ?></code></td>
                         <td><strong><?= e($ct['ten_hang_hoa'] ?? $ct['ma_hang_hoa']) ?></strong></td>
                         <td><?= e($ct['don_vi_tinh'] ?? '—') ?></td>
-                        <td style="text-align: right;"><strong><?= e(number_format((int) $ct['so_luong'])) ?></strong></td>
+                        <td style="text-align: right;"><strong><?= e($formatQty($ct['so_luong'])) ?></strong></td>
                         <td>
                             <ul class="lot-distribution-list" style="margin: 0; padding-left: 1.2rem; font-size: 0.9rem; line-height: 1.6;">
                                 <?php if (!empty($ct['xuat_lo'])): ?>
@@ -82,7 +88,7 @@ $export = $export ?? [];
                                         <li>
                                             Lô <span class="badge badge--neutral"><?= e($xl['ma_lo_hang']) ?></span> 
                                             (HSD: <?= !empty($xl['han_su_dung']) ? e(date('d/m/Y', strtotime($xl['han_su_dung']))) : '—' ?>)
-                                            — Xuất: <strong><?= e(number_format((int) $xl['so_luong'])) ?></strong>
+                                             — Xuất: <strong><?= e($formatQty($xl['so_luong'])) ?></strong>
                                         </li>
                                     <?php endforeach; ?>
                                 <?php else: ?>
@@ -96,7 +102,7 @@ $export = $export ?? [];
             <tfoot>
                 <tr style="background: var(--surface-soft); font-weight: 700;">
                     <td colspan="4" style="text-align: right; padding: 22px 18px;">Tổng cộng:</td>
-                    <td style="text-align: right; padding: 22px 18px; color: var(--text);"><strong><?= e(number_format((int) $export['tong_so_luong'])) ?></strong></td>
+                    <td style="text-align: right; padding: 22px 18px; color: var(--text);"><strong><?= e($formatQty($export['tong_so_luong'])) ?></strong></td>
                     <td></td>
                 </tr>
             </tfoot>

@@ -83,18 +83,23 @@ class HangHoaController
         $isEdit = (string) ($_POST['is_edit'] ?? '0') === '1';
         $originalId = trim((string) ($_POST['original_id'] ?? ''));
 
+        $isScale = (string) ($_POST['is_scale'] ?? '0') === '1';
+        $scaleCodeInput = trim((string) ($_POST['ma_tem_can'] ?? ''));
+        $maTemCan = $isScale && $scaleCodeInput !== '' ? $scaleCodeInput : null;
+
         $input = [
             'ma_hang_hoa' => strtoupper(trim((string) ($_POST['ma_hang_hoa'] ?? ''))),
             'ten_hang_hoa' => trim((string) ($_POST['ten_hang_hoa'] ?? '')),
             'don_vi_tinh' => trim((string) ($_POST['don_vi_tinh'] ?? '')),
             'gia_ban' => trim((string) ($_POST['gia_ban'] ?? '')),
             'ma_vach' => trim((string) ($_POST['ma_vach'] ?? '')) ?: null,
+            'ma_tem_can' => $maTemCan,
             'trang_thai' => trim((string) ($_POST['trang_thai'] ?? 'DANG_KINH_DOANH')),
             'ma_danh_muc' => trim((string) ($_POST['ma_danh_muc'] ?? '')) ?: null,
             'ma_nha_cung_cap' => trim((string) ($_POST['ma_nha_cung_cap'] ?? '')) ?: null,
         ];
 
-        $errors = $this->_validate($input, !$isEdit);
+        $errors = $this->_validate($input, !$isEdit, $isEdit ? $originalId : null);
 
         if ($errors !== []) {
             $danhMucs = $this->danhMucModel->getAll();
@@ -115,12 +120,24 @@ class HangHoaController
 
         try {
             if ($isEdit) {
+                $hangHoa = $this->hangHoaModel->findById($originalId);
+                $isHangDongGoi = ($hangHoa !== null && empty($hangHoa['ma_tem_can']));
+
                 $lots = [];
                 foreach ($_POST['lo'] ?? [] as $maLo => $vals) {
+                    $trongKho = (float) ($vals['so_luong_trong_kho'] ?? 0.0);
+                    $trenKe = (float) ($vals['so_luong_tren_ke'] ?? 0.0);
+
+                    if ($isHangDongGoi) {
+                        if (fmod($trongKho, 1.0) !== 0.0 || fmod($trenKe, 1.0) !== 0.0) {
+                            throw new Exception("Sản phẩm là hàng đóng gói, số lượng tồn kho/tồn kệ phải là số nguyên.");
+                        }
+                    }
+
                     $lots[] = [
                         'ma_lo_hang' => $maLo,
-                        'so_luong_trong_kho' => (int) ($vals['so_luong_trong_kho'] ?? 0),
-                        'so_luong_tren_ke' => (int) ($vals['so_luong_tren_ke'] ?? 0),
+                        'so_luong_trong_kho' => $trongKho,
+                        'so_luong_tren_ke' => $trenKe,
                     ];
                 }
                 if ($lots !== []) {
@@ -210,7 +227,20 @@ class HangHoaController
         redirect_to('hang-hoa', 'index');
     }
 
-    private function _validate(array $data, bool $checkCode): array
+    public function next_scale_code(): void
+    {
+        require_permission('hang-hoa');
+        header('Content-Type: application/json');
+        try {
+            $code = $this->hangHoaModel->getNextScaleCode();
+            echo json_encode(['success' => true, 'scale_code' => $code]);
+        } catch (Throwable $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    private function _validate(array $data, bool $checkCode, ?string $originalId = null): array
     {
         $errors = [];
         if ($checkCode && empty($data['ma_hang_hoa'])) {
@@ -228,6 +258,13 @@ class HangHoaController
             $errors[] = 'Giá bán phải là số.';
         } elseif ((float) $data['gia_ban'] < 0) {
             $errors[] = 'Giá bán không được âm.';
+        }
+        if ($data['ma_tem_can'] !== null && $data['ma_tem_can'] !== '') {
+            if (preg_match('/^\d{5}$/', $data['ma_tem_can']) !== 1) {
+                $errors[] = 'Mã tem cân phải gồm đúng 5 chữ số.';
+            } elseif ($this->hangHoaModel->isScaleCodeExists($data['ma_tem_can'], $originalId)) {
+                $errors[] = "Mã tem cân '{$data['ma_tem_can']}' đã được sử dụng cho hàng hóa khác.";
+            }
         }
         return $errors;
     }
@@ -249,8 +286,8 @@ class HangHoaController
 
             $inStock = $lowStock = $outStock = 0;
             foreach ($rows as $r) {
-                $q = (int) $r['ton_kho'];
-                if ($q === 0) {
+                $q = (float) $r['ton_kho'];
+                if ($q === 0.0) {
                     $outStock++;
                 } elseif ($q < 100) {
                     $lowStock++;

@@ -100,8 +100,8 @@ class HangHoaModel
              WHERE ma_lo_hang = ?"
         );
         foreach ($lots as $lot) {
-            $kho = max(0, (int) ($lot['so_luong_trong_kho'] ?? 0));
-            $ke  = max(0, (int) ($lot['so_luong_tren_ke'] ?? 0));
+            $kho = max(0.0, (float) ($lot['so_luong_trong_kho'] ?? 0.0));
+            $ke  = max(0.0, (float) ($lot['so_luong_tren_ke'] ?? 0.0));
             $stmt->execute([$kho, $ke, $lot['ma_lo_hang']]);
         }
         return true;
@@ -112,8 +112,8 @@ class HangHoaModel
         $stmt = $this->pdo->prepare(
             "INSERT INTO hang_hoa
                  (ma_hang_hoa, ten_hang_hoa, don_vi_tinh, gia_ban,
-                  ma_vach, trang_thai, ma_danh_muc, ma_nha_cung_cap)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+                  ma_vach, ma_tem_can, trang_thai, ma_danh_muc, ma_nha_cung_cap)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
         );
         return $stmt->execute([
             $data['ma_hang_hoa'],
@@ -121,6 +121,7 @@ class HangHoaModel
             $data['don_vi_tinh'],
             $data['gia_ban'],
             $data['ma_vach']        ?? null,
+            $data['ma_tem_can']     ?? null,
             $data['trang_thai'],
             $data['ma_danh_muc']    ?? null,
             $data['ma_nha_cung_cap'] ?? null,
@@ -138,22 +139,48 @@ class HangHoaModel
                  don_vi_tinh     = ?,
                  gia_ban         = ?,
                  ma_vach         = ?,
+                 ma_tem_can      = ?,
                  trang_thai      = ?,
                  ma_danh_muc     = ?,
                  ma_nha_cung_cap = ?
              WHERE ma_hang_hoa   = ?"
-        );
+         );
         return $stmt->execute([
             $newCode,
             $data['ten_hang_hoa'],
             $data['don_vi_tinh'],
             $data['gia_ban'],
             $data['ma_vach']        ?? null,
+            $data['ma_tem_can']     ?? null,
             $data['trang_thai'],
             $data['ma_danh_muc']    ?? null,
             $data['ma_nha_cung_cap'] ?? null,
             $ma_hang_hoa,
         ]);
+    }
+
+    public function getNextScaleCode(): string
+    {
+        $stmt = $this->pdo->query("SELECT MAX(CAST(ma_tem_can AS UNSIGNED)) FROM hang_hoa WHERE ma_tem_can IS NOT NULL AND ma_tem_can REGEXP '^[0-9]+$'");
+        $max = $stmt->fetchColumn();
+        $nextVal = $max ? ((int) $max) + 1 : 1;
+        return str_pad((string) $nextVal, 5, '0', STR_PAD_LEFT);
+    }
+
+    public function isScaleCodeExists(string $scaleCode, ?string $excludeMaHangHoa = null): bool
+    {
+        if ($scaleCode === '') {
+            return false;
+        }
+        $sql = "SELECT COUNT(*) FROM hang_hoa WHERE ma_tem_can = ?";
+        $params = [$scaleCode];
+        if ($excludeMaHangHoa !== null) {
+            $sql .= " AND ma_hang_hoa != ?";
+            $params[] = $excludeMaHangHoa;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return ((int) $stmt->fetchColumn()) > 0;
     }
 
     public function delete(string $ma_hang_hoa): bool
@@ -209,5 +236,38 @@ class HangHoaModel
         }
 
         return [$sql, $params];
+    }
+
+
+    //Tìm hàng hóa theo mã vạch từ NSX
+    public function findByBarcode(string $barcode): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT hh.*, dm.ten_danh_muc
+             FROM hang_hoa hh
+             LEFT JOIN danh_muc dm ON dm.ma_danh_muc = hh.ma_danh_muc
+             WHERE hh.ma_vach = :barcode AND hh.trang_thai = 'DANG_KINH_DOANH'
+             LIMIT 1"
+        );
+        $stmt->execute(['barcode' => $barcode]);
+        $row = $stmt->fetch();
+
+        return $row ?: null;
+    }
+
+    //Tìm hàng hóa theo mã tem cân điện tử (20-xxxxx-yyyyy)
+    public function findByScaleCode(string $code): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT hh.*, dm.ten_danh_muc
+             FROM hang_hoa hh
+             LEFT JOIN danh_muc dm ON dm.ma_danh_muc = hh.ma_danh_muc
+             WHERE hh.ma_tem_can = :code AND hh.trang_thai = 'DANG_KINH_DOANH'
+             LIMIT 1"
+        );
+        $stmt->execute(['code' => $code]);
+        $row = $stmt->fetch();
+
+        return $row ?: null;
     }
 }

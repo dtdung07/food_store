@@ -2,6 +2,12 @@
 declare(strict_types=1);
 $slip = $slip ?? [];
 $canApprove = $canApprove ?? false;
+
+$formatQty = static function (mixed $value): string {
+    $number = (float) $value;
+    $formatted = number_format($number, 3, ',', '.');
+    return rtrim(rtrim($formatted, '0'), ',');
+};
 ?>
 <section class="page-hero">
     <div>
@@ -43,7 +49,7 @@ $canApprove = $canApprove ?? false;
         </div>
         <div class="field">
             <label>Tổng số lượng hủy</label>
-            <div style="font-size: 16px;"><span class="badge badge--neutral"><?= e(number_format((int) $slip['tong_so_luong'])) ?> sản phẩm</span></div>
+            <div style="font-size: 16px;"><span class="badge badge--neutral"><?= e($formatQty($slip['tong_so_luong'])) ?> sản phẩm</span></div>
         </div>
         <div class="field">
             <label>Người duyệt phiếu</label>
@@ -103,7 +109,7 @@ $canApprove = $canApprove ?? false;
                         <td><code><?= e($ct['ma_hang_hoa']) ?></code></td>
                         <td><strong><?= e($ct['ten_hang_hoa'] ?? $ct['ma_hang_hoa']) ?></strong></td>
                         <td><?= e($ct['don_vi_tinh'] ?? '—') ?></td>
-                        <td style="text-align: right;"><strong><?= e(number_format((int) $ct['so_luong'])) ?></strong></td>
+                        <td style="text-align: right;"><strong><?= e($formatQty($ct['so_luong'])) ?></strong></td>
                         <td style="text-align: right;"><?= currency($ct['gia_ban']) ?></td>
                         <td style="text-align: right; color: var(--red); font-weight: 700;"><?= currency($thanhTien) ?></td>
                         <td>
@@ -127,7 +133,7 @@ $canApprove = $canApprove ?? false;
                                         <li>
                                             Lô <span class="badge badge--neutral"><?= e($hl['ma_lo_hang']) ?></span> 
                                             (HSD: <?= !empty($hl['han_su_dung']) ? e(date('d/m/Y', strtotime($hl['han_su_dung']))) : '—' ?>)
-                                            — Hủy: <strong><?= e(number_format((int) $hl['so_luong'])) ?></strong>
+                                            — Hủy: <strong><?= e($formatQty($hl['so_luong'])) ?></strong>
                                         </li>
                                     <?php endforeach; ?>
                                 <?php else: ?>
@@ -141,7 +147,7 @@ $canApprove = $canApprove ?? false;
             <tfoot>
                 <tr style="background: var(--surface-soft); font-weight: 700;">
                     <td colspan="4" style="text-align: right; padding: 22px 18px;">Tổng cộng:</td>
-                    <td style="text-align: right; padding: 22px 18px; color: var(--text);"><strong><?= e(number_format((int) $slip['tong_so_luong'])) ?></strong></td>
+                    <td style="text-align: right; padding: 22px 18px; color: var(--text);"><strong><?= e($formatQty($slip['tong_so_luong'])) ?></strong></td>
                     <td></td>
                     <td style="text-align: right; padding: 22px 18px; color: var(--red); font-size: 18px;"><strong><?= currency($totalAmount) ?></strong></td>
                     <td></td>

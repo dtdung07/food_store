@@ -91,7 +91,7 @@ class PhieuXuatModel
 
     //Gợi ý xuất hàng theo FIFO cho 1 mặt hàng. Trả về mảng các lô cần xuất và số lượng từ mỗi lô
     //return array ['suggestions' => [mang_cac_lo_xuat], 'total_available' => int, 'enough' => bool]
-    public function suggestFIFO(string $maHangHoa, int $qty): array
+    public function suggestFIFO(string $maHangHoa, float $qty): array
     {
         // Lấy các lô theo FIFO (HSD tăng dần), chỉ lô còn trong kho
         $stmt = $this->pdo->prepare(
@@ -109,7 +109,7 @@ class PhieuXuatModel
 
         //Tính tổng số lượng có sẵn
         foreach ($lots as $lot) {
-            $totalAvailable += (int) $lot['so_luong_trong_kho'];
+            $totalAvailable += (float) $lot['so_luong_trong_kho'];
         }
 
         //Duyệt qua các lô theo thứ tự FIFO
@@ -118,7 +118,7 @@ class PhieuXuatModel
                 break;
             }
 
-            $available = (int) $lot['so_luong_trong_kho'];
+            $available = (float) $lot['so_luong_trong_kho'];
             $take = min($remaining, $available);
 
             //Thêm lô vào danh sách gợi ý
@@ -152,7 +152,7 @@ class PhieuXuatModel
 
         try {
             $maPhieu = $this->generateId();
-            $tongSoLuong = 0;
+            $tongSoLuong = 0.0;
 
             //1. Tạo header phiếu xuất
             $stmt = $this->pdo->prepare(
@@ -168,7 +168,7 @@ class PhieuXuatModel
             //2. Xử lý từng sản phẩm trong details
             foreach ($details as $detail) {
                 $maHangHoa = trim($detail['ma_hang_hoa']);
-                $soLuong = (int) $detail['so_luong'];
+                $soLuong = round((float) $detail['so_luong'], 3);
 
                 //2a. Tạo chi tiết phiếu xuất
                 $ctStmt = $this->pdo->prepare(

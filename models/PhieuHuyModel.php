@@ -117,7 +117,7 @@ class PhieuHuyModel
 
         try {
             $maPhieu = $this->generateId();
-            $tongSoLuong = 0;
+            $tongSoLuong = 0.0;
 
             //Insert header (thông tin chung) phiếu hủy
             $stmt = $this->pdo->prepare(
@@ -132,7 +132,7 @@ class PhieuHuyModel
 
             //Xử lý từng sản phẩm trong chi tiết phiếu hủy
             foreach ($details as $detail) {
-                $soLuong = (int) $detail['so_luong'];
+                $soLuong = round((float) $detail['so_luong'], 3);
 
                 $ctStmt = $this->pdo->prepare(
                     "INSERT INTO chi_tiet_phieu_huy (so_luong, ly_do_huy, ma_phieu_huy, ma_hang_hoa)
@@ -198,7 +198,7 @@ class PhieuHuyModel
             //Trừ kho theo FIFO cho từng mặt hàng
             foreach ($details as $detail) {
                 $maHangHoa = $detail['ma_hang_hoa'];
-                $soLuongHuy = (int) $detail['so_luong'];
+                $soLuongHuy = round((float) $detail['so_luong'], 3);
                 $maChiTietHuy = (int) $detail['ma_chi_tiet_huy'];
 
                 //Lấy lô theo FIFO
@@ -215,7 +215,7 @@ class PhieuHuyModel
                 // Tính tổng tồn thực tế của tất cả các lô
                 $totalAvailable = 0;
                 foreach ($lots as $lot) {
-                    $totalAvailable += (int) $lot['so_luong_trong_kho'] + (int) $lot['so_luong_tren_ke'];
+                    $totalAvailable += (float) $lot['so_luong_trong_kho'] + (float) $lot['so_luong_tren_ke'];
                 }
 
                 if ($soLuongHuy > $totalAvailable) {
@@ -232,11 +232,11 @@ class PhieuHuyModel
                         break;
                     }
 
-                    $totalLot = (int) $lot['so_luong_trong_kho'] + (int) $lot['so_luong_tren_ke'];
+                    $totalLot = (float) $lot['so_luong_trong_kho'] + (float) $lot['so_luong_tren_ke'];
                     $take = min($remaining, $totalLot);
 
                     //Trừ ưu tiên từ kho trước, rồi kệ
-                    $fromKho = min($take, (int) $lot['so_luong_trong_kho']);
+                    $fromKho = min($take, (float) $lot['so_luong_trong_kho']);
                     $fromKe = $take - $fromKho;
 
                     if ($fromKho > 0) {

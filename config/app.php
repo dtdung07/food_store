@@ -48,7 +48,8 @@ const MODULE_ACCESS = [
     'hang-hoa' => ['ADMIN', 'QUAN_LY', 'THU_KHO'],
     'nha-cung-cap' => ['ADMIN', 'QUAN_LY', 'THU_KHO'],
     'kho' => ['ADMIN', 'QUAN_LY', 'THU_KHO'],
-    'phieu-huy' => ['ADMIN', 'QUAN_LY', 'THU_KHO', 'NV_QUAY_CAN']
+    'phieu-huy' => ['ADMIN', 'QUAN_LY', 'THU_KHO', 'NV_QUAY_CAN'],
+    'ban-hang' => ['ADMIN', 'QUAN_LY', 'THU_NGAN'],
 ];
 
 function current_route(): array
@@ -286,11 +287,11 @@ function db_error_message(Throwable $exception): string
 function role_access_matrix(): array
 {
     return [
-        'ADMIN' => ['Báo cáo', 'Nhân viên', 'Tài khoản'],
-        'QUAN_LY' => ['Báo cáo', 'Nhân viên'],
-        'THU_KHO' => ['Báo cáo'],
-        'THU_NGAN' => ['Báo cáo'],
-        'NV_QUAY_CAN' => ['Báo cáo'],
+        'ADMIN' => ['Báo cáo', 'POS bán hàng', 'Nhân viên', 'Tài khoản', 'Kho', 'Phiếu hủy'],
+        'QUAN_LY' => ['Báo cáo', 'POS bán hàng', 'Nhân viên', 'Kho', 'Phiếu hủy'],
+        'THU_KHO' => ['Báo cáo', 'Kho', 'Phiếu hủy'],
+        'THU_NGAN' => ['Báo cáo', 'POS bán hàng'],
+        'NV_QUAY_CAN' => ['Báo cáo', 'Phiếu hủy'],
     ];
 }
 

@@ -3,6 +3,12 @@ declare(strict_types=1);
 $exports = $exports ?? [];
 $filters = $filters ?? ['q' => '', 'date_from' => '', 'date_to' => ''];
 $stats = $stats ?? ['total_count' => 0];
+
+$formatQty = static function (mixed $value): string {
+    $number = (float) $value;
+    $formatted = number_format($number, 3, ',', '.');
+    return rtrim(rtrim($formatted, '0'), ',');
+};
 ?>
 <section class="page-hero">
     <div>
@@ -100,7 +106,7 @@ $stats = $stats ?? ['total_count' => 0];
                             <tr>
                                 <td><code><?= e($ex['ma_phieu_xuat']) ?></code></td>
                                 <td><?= e(date('d/m/Y', strtotime($ex['ngay_tao']))) ?></td>
-                                <td style="text-align: right;"><span class="badge badge--neutral"><?= e(number_format((int) $ex['tong_so_luong'])) ?></span></td>
+                                <td style="text-align: right;"><span class="badge badge--neutral"><?= e($formatQty($ex['tong_so_luong'])) ?></span></td>
                                 <td><?= e($ex['ten_nhan_vien'] ?? '—') ?></td>
                                 <td>
                                     <div class="inline-actions">

@@ -3,6 +3,12 @@ declare(strict_types=1);
 $slips = $slips ?? [];
 $filters = $filters ?? ['q' => '', 'status' => 'all', 'date_from' => '', 'date_to' => ''];
 $stats = $stats ?? ['total' => 0, 'cho_duyet' => 0, 'da_duyet' => 0, 'tu_choi' => 0];
+
+$formatQty = static function (mixed $value): string {
+    $number = (float) $value;
+    $formatted = number_format($number, 3, ',', '.');
+    return rtrim(rtrim($formatted, '0'), ',');
+};
 ?>
 <section class="page-hero">
     <div>
@@ -141,7 +147,7 @@ $stats = $stats ?? ['total' => 0, 'cho_duyet' => 0, 'da_duyet' => 0, 'tu_choi' =
                             <tr>
                                 <td><code><?= e($s['ma_phieu_huy']) ?></code></td>
                                 <td><?= e(date('d/m/Y', strtotime($s['ngay_tao']))) ?></td>
-                                <td style="text-align: right;"><span class="badge badge--neutral"><?= e(number_format((int) $s['tong_so_luong'])) ?></span></td>
+                                <td style="text-align: right;"><span class="badge badge--neutral"><?= e($formatQty($s['tong_so_luong'])) ?></span></td>
                                 <td>
                                     <?php 
                                     $statusTone = badge_tone($s['trang_thai']);

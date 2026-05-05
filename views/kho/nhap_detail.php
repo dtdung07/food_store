@@ -1,6 +1,12 @@
 <?php
 declare(strict_types=1);
 $receipt = $receipt ?? [];
+
+$formatQty = static function (mixed $value): string {
+    $number = (float) $value;
+    $formatted = number_format($number, 3, ',', '.');
+    return rtrim(rtrim($formatted, '0'), ',');
+};
 ?>
 <section class="page-hero">
     <div>
@@ -40,7 +46,7 @@ $receipt = $receipt ?? [];
         </div>
         <div class="field">
             <label>Tổng số lượng nhập</label>
-            <div style="font-size: 16px;"><span class="badge badge--neutral"><?= e(number_format((int) $receipt['tong_so_luong'])) ?> sản phẩm</span></div>
+            <div style="font-size: 16px;"><span class="badge badge--neutral"><?= e($formatQty($receipt['tong_so_luong'])) ?> sản phẩm</span></div>
         </div>
         <div class="field">
             <label>Tổng giá trị nhập</label>
@@ -89,7 +95,7 @@ $receipt = $receipt ?? [];
                         <td><span class="badge badge--neutral"><?= e($ct['ma_lo_hang'] ?? '—') ?></span></td>
                         <td><?= !empty($ct['ngay_san_xuat']) ? e(date('d/m/Y', strtotime($ct['ngay_san_xuat']))) : '—' ?></td>
                         <td><?= !empty($ct['han_su_dung']) ? e(date('d/m/Y', strtotime($ct['han_su_dung']))) : '—' ?></td>
-                        <td style="text-align: right;"><strong><?= e(number_format((int) $ct['so_luong'])) ?></strong></td>
+                        <td style="text-align: right;"><strong><?= e($formatQty($ct['so_luong'])) ?></strong></td>
                         <td style="text-align: right;"><?= currency($ct['don_gia_nhap']) ?></td>
                         <td style="text-align: right; color: var(--blue); font-weight: 700;"><?= currency($ct['so_luong'] * $ct['don_gia_nhap']) ?></td>
                     </tr>
@@ -98,7 +104,7 @@ $receipt = $receipt ?? [];
             <tfoot>
                 <tr style="background: var(--surface-soft); font-weight: 700;">
                     <td colspan="7" style="text-align: right; padding: 22px 18px;">Tổng cộng:</td>
-                    <td style="text-align: right; padding: 22px 18px; color: var(--text);"><strong><?= e(number_format((int) $receipt['tong_so_luong'])) ?></strong></td>
+                    <td style="text-align: right; padding: 22px 18px; color: var(--text);"><strong><?= e($formatQty($receipt['tong_so_luong'])) ?></strong></td>
                     <td></td>
                     <td style="text-align: right; padding: 22px 18px; color: var(--red); font-size: 18px;"><strong><?= currency($receipt['tong_tien']) ?></strong></td>
                 </tr>

@@ -20,6 +20,7 @@
                 </div>
 
                 <nav class="sidebar__nav">
+                    <?php if (can_access('dashboard') || can_access('bao-cao') || can_access('ban-hang')): ?>
                     <div class="sidebar__section">
                         <span class="sidebar__section-label">Tổng quan</span>
                         <?php if (can_access('dashboard')): ?>
@@ -38,7 +39,17 @@
                                 <span>Báo cáo</span>
                             </a>
                         <?php endif; ?>
+                        <?php if (can_access('ban-hang')): ?>
+                            <a class="nav-link <?= $route['controller'] === 'ban-hang' ? 'is-active' : '' ?>" href="<?= e(url_for('ban-hang', 'pos')) ?>" hx-boost="false">
+                                <span class="nav-link__icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10l1 13H6L7 7zm2-3h6l1 3H8l1-3zM9 11h6m-6 4h4"/></svg>
+                                </span>
+                                <span>POS bán hàng</span>
+                            </a>
+                        <?php endif; ?>
                     </div>
+                    <?php endif; ?>
+                    
                     <?php if (can_access('nhan-vien') || can_access('tai-khoan')): ?>
                     <div class="sidebar__section">
                         <span class="sidebar__section-label">Người dùng</span>

@@ -91,7 +91,7 @@ class PhieuNhapModel
 
         try {
             $maPhieu = $this->generateId();
-            $tongSoLuong = 0;
+            $tongSoLuong = 0.0;
             $tongTien = 0.0;
 
             //1. Tạo header (thông tin chung) phiếu nhập
@@ -108,7 +108,7 @@ class PhieuNhapModel
 
             //2. Xử lý từng sản phẩm trong details (chi tiết phiếu nhập)
             foreach ($details as $detail) {
-                $soLuong = (int) $detail['so_luong'];
+                $soLuong = round((float) $detail['so_luong'], 3);
                 $donGia = (float) $detail['don_gia_nhap'];
                 $maLoHang = trim($detail['ma_lo_hang']);
                 $maHangHoa = trim($detail['ma_hang_hoa']);

@@ -3,6 +3,12 @@ declare(strict_types=1);
 $receipts = $receipts ?? [];
 $filters = $filters ?? ['q' => '', 'date_from' => '', 'date_to' => ''];
 $stats = $stats ?? ['total_count' => 0, 'total_amount' => 0];
+
+$formatQty = static function (mixed $value): string {
+    $number = (float) $value;
+    $formatted = number_format($number, 3, ',', '.');
+    return rtrim(rtrim($formatted, '0'), ',');
+};
 ?>
 <section class="page-hero">
     <div>
@@ -113,7 +119,7 @@ $stats = $stats ?? ['total_count' => 0, 'total_amount' => 0];
                                 <td><code><?= e($r['ma_phieu_nhap']) ?></code></td>
                                 <td><?= e(date('d/m/Y H:i', strtotime($r['ngay_tao']))) ?></td>
                                 <td><strong><?= e($r['ten_nha_cung_cap'] ?? '—') ?></strong></td>
-                                <td style="text-align: right;"><span class="badge badge--neutral"><?= e(number_format((int) $r['tong_so_luong'])) ?></span></td>
+                                <td style="text-align: right;"><span class="badge badge--neutral"><?= e($formatQty($r['tong_so_luong'])) ?></span></td>
                                 <td style="text-align: right; color: var(--red); font-weight: 700;"><?= currency($r['tong_tien']) ?></td>
                                 <td><?= e($r['ten_nhan_vien'] ?? '—') ?></td>
                                 <td>

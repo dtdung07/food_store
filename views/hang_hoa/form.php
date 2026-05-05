@@ -58,8 +58,21 @@ $loHangs = $loHangs ?? [];
         </div>
 
         <div class="field">
-            <label for="ma_vach">Mã vạch</label>
-            <input id="ma_vach" name="ma_vach" value="<?= e($hangHoa['ma_vach'] ?? '') ?>" placeholder="Nhập mã vạch sản phẩm...">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center;">
+                    <label for="barcode_input" id="barcode_label" style="margin-bottom: 0; font-weight: 600;">
+                        <?= !empty($hangHoa['ma_tem_can']) ? 'Mã tem cân (5 chữ số) <span style="color: var(--red);">*</span>' : 'Mã vạch cố định (từ NSX)' ?>
+                    </label>
+                </div>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; font-weight: normal; user-select: none; color: var(--text-muted);">
+                    <input type="checkbox" id="is_scale" name="is_scale" value="1" <?= !empty($hangHoa['ma_tem_can']) ? 'checked' : '' ?> style="width: 16px; height: 16px; cursor: pointer;">
+                    Sử dụng tem cân (PLU)
+                </label>
+            </div>
+            <input id="barcode_input" name="<?= !empty($hangHoa['ma_tem_can']) ? 'ma_tem_can' : 'ma_vach' ?>" 
+                   value="<?= e(!empty($hangHoa['ma_tem_can']) ? $hangHoa['ma_tem_can'] : ($hangHoa['ma_vach'] ?? '')) ?>" 
+                   placeholder="<?= !empty($hangHoa['ma_tem_can']) ? 'Ví dụ: 00013' : 'Nhập mã vạch sản phẩm...' ?>"
+                   <?= !empty($hangHoa['ma_tem_can']) ? 'maxlength="5" pattern="\d{5}" required' : '' ?>>
         </div>
 
         <div class="field">
@@ -144,3 +157,107 @@ $loHangs = $loHangs ?? [];
         </div>
     </form>
 </section>
+
+<script>
+(function() {
+    const isScaleCheckbox = document.getElementById('is_scale');
+    const barcodeInput = document.getElementById('barcode_input');
+    const barcodeLabel = document.getElementById('barcode_label');
+    const donViTinhSelect = document.getElementById('don_vi_tinh');
+    const btnGenerateScale = document.getElementById('btn_generate_scale');
+
+    if (!isScaleCheckbox || !barcodeInput || !barcodeLabel) return;
+
+    //Lưu lại giá trị ban đầu để khôi phục khi chuyển qua lại
+    let originalBarcode = '';
+    let originalScaleCode = '';
+    
+    if (isScaleCheckbox.checked) {
+        originalScaleCode = barcodeInput.value.trim();
+    } else {
+        originalBarcode = barcodeInput.value.trim();
+    }
+
+    function generateNewScaleCode(event) {
+        if (event) event.preventDefault();
+        barcodeInput.placeholder = 'Đang lấy mã...';
+        fetch('<?= e(url_for("hang-hoa", "next_scale_code")) ?>')
+            .then(res => res.json())
+            .then(json => {
+                if (json.success) {
+                    barcodeInput.value = json.scale_code;
+                    originalScaleCode = json.scale_code;
+                } else {
+                    barcodeInput.placeholder = 'Lỗi lấy mã';
+                }
+            })
+            .catch(() => {
+                barcodeInput.placeholder = 'Lỗi kết nối';
+            });
+    }
+
+    function toggleScaleCode() {
+        if (isScaleCheckbox.checked) {
+            //Hiển thị nút tự sinh mã
+            if (btnGenerateScale) btnGenerateScale.style.display = 'inline';
+
+            //Lưu lại giá trị mã vạch thông thường trước khi chuyển
+            if (!originalScaleCode && barcodeInput.name === 'ma_vach') {
+                originalBarcode = barcodeInput.value.trim();
+            }
+
+            //Chuyển sang chế độ tem cân
+            barcodeLabel.innerHTML = 'Mã tem cân (5 chữ số) <span style="color: var(--red);">*</span>';
+            barcodeInput.name = 'ma_tem_can';
+            barcodeInput.placeholder = 'Ví dụ: 00013';
+            barcodeInput.setAttribute('maxlength', '5');
+            barcodeInput.setAttribute('pattern', '\\d{5}');
+            barcodeInput.setAttribute('required', 'required');
+            barcodeInput.value = originalScaleCode;
+
+            //Tự động lấy mã tiếp theo nếu ô nhập đang trống
+            if (!barcodeInput.value.trim()) {
+                generateNewScaleCode();
+            }
+        } else {
+            //Ẩn nút tự sinh mã
+            if (btnGenerateScale) btnGenerateScale.style.display = 'none';
+
+            //Lưu lại giá trị mã tem cân trước khi chuyển
+            if (barcodeInput.name === 'ma_tem_can') {
+                originalScaleCode = ''; // Xoá bỏ giá trị trùng lặp cũ để khi tích chọn lại sẽ tự động sinh mã mới
+            }
+
+            //Chuyển sang chế độ mã vạch thông thường
+            barcodeLabel.innerHTML = 'Mã vạch cố định (từ NSX)';
+            barcodeInput.name = 'ma_vach';
+            barcodeInput.placeholder = 'Nhập mã vạch sản phẩm...';
+            barcodeInput.removeAttribute('maxlength');
+            barcodeInput.removeAttribute('pattern');
+            barcodeInput.removeAttribute('required');
+            barcodeInput.value = originalBarcode;
+        }
+    }
+
+    //Gán sự kiện click cho nút tự sinh mã
+    if (btnGenerateScale) {
+        btnGenerateScale.addEventListener('click', generateNewScaleCode);
+    }
+
+    //Gán sự kiện change cho checkbox
+    isScaleCheckbox.addEventListener('change', toggleScaleCode);
+
+    //Tự động tích chọn nếu ĐVT là Kg/g
+    if (donViTinhSelect) {
+        donViTinhSelect.addEventListener('change', function() {
+            const val = donViTinhSelect.value.toLowerCase();
+            if (val === 'kg' || val === 'g') {
+                if (!isScaleCheckbox.checked) {
+                    isScaleCheckbox.checked = true;
+                    toggleScaleCode();
+                }
+            }
+        });
+    }
+})();
+</script>

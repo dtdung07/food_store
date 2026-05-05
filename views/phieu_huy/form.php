@@ -51,36 +51,13 @@ $errors = $errors ?? [];
                 </button>
             </div>
 
-            <div class="table-card table-card--flush">
-                <div class="table-wrap">
-                    <table id="table-details">
-                        <thead>
-                            <tr>
-                                <th>Hàng hóa <span style="color: var(--red);">*</span></th>
-                                <th style="width:110px; text-align: right;">SL hủy <span style="color: var(--red);">*</span></th>
-                                <th style="width:145px; text-align: right;">Giá bán <span style="color: var(--red);">*</span></th>
-                                <th style="width:140px; text-align: right;">Thành tiền (Thất thoát)</th>
-                                <th style="width:230px;">Lý do cụ thể <span style="color: var(--red);">*</span></th>
-                                <th style="width:200px;">Tồn kho hiện có (Kho | Kệ)</th>
-                                <th style="width:50px"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="detail-body">
-                            <!-- Rows added via JS -->
-                        </tbody>
-                        <tfoot>
-                            <tr style="background: var(--surface-soft); font-weight: 700;">
-                                <td style="text-align: right; padding: 22px 18px;">Tổng cộng:</td>
-                                <td style="text-align: right; padding: 22px 18px;"><strong id="total-qty">0</strong></td>
-                                <td></td>
-                                <td style="text-align: right; padding: 22px 18px; color: var(--red); font-size: 18px;"><strong id="total-amount">0 VND</strong></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+            <div id="detail-body" style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Rows added via JS -->
+            </div>
+
+            <div style="margin-top: 16px; padding: 18px 24px; background: var(--surface-soft); border-radius: 16px; display: flex; justify-content: flex-end; align-items: center; gap: 40px; font-weight: 700; font-size: 15px;">
+                <span>Tổng số lượng: <strong id="total-qty" style="color: var(--text); font-size: 16px; margin-left: 8px;">0</strong></span>
+                <span>Tổng thất thoát: <strong id="total-amount" style="color: var(--red); font-size: 18px; margin-left: 8px;">0 VND</strong></span>
             </div>
         </div>
 

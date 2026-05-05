@@ -97,7 +97,7 @@ class KhoController
 
             $details[] = [
                 'ma_hang_hoa'   => $mhh,
-                'so_luong'      => (int) ($soLuongArr[$i] ?? 0),
+                'so_luong'      => (float) ($soLuongArr[$i] ?? 0.0),
                 'don_gia_nhap'  => (float) ($donGiaArr[$i] ?? 0),
                 'ma_lo_hang'    => trim((string) ($maLoArr[$i] ?? '')),
                 'ngay_san_xuat' => trim((string) ($ngaySXArr[$i] ?? '')),
@@ -217,7 +217,7 @@ class KhoController
 
             $details[] = [
                 'ma_hang_hoa' => $mhh,
-                'so_luong'    => (int) ($soLuongArr[$i] ?? 0),
+                'so_luong'    => (float) ($soLuongArr[$i] ?? 0.0),
             ];
         }
 
@@ -323,7 +323,7 @@ class KhoController
         require_login();
 
         $maHangHoa = trim((string) ($_GET['ma_hang_hoa'] ?? ''));
-        $qty = (int) ($_GET['qty'] ?? 0);
+        $qty = (float) ($_GET['qty'] ?? 0.0);
 
         if ($maHangHoa === '' || $qty <= 0) {
             header('Content-Type: application/json');
@@ -360,6 +360,17 @@ class KhoController
 
             if ($d['so_luong'] <= 0) {
                 $errors[] = "Dòng {$row}: Số lượng phải lớn hơn 0.";
+            }
+
+            // Kiểm tra hàng đóng gói hay hàng cân
+            $hangHoa = $this->hangHoaModel->findById($d['ma_hang_hoa']);
+            if ($hangHoa !== null) {
+                if (empty($hangHoa['ma_tem_can'])) {
+                    // Hàng đóng gói, bắt buộc số nguyên
+                    if (fmod((float) $d['so_luong'], 1.0) !== 0.0) {
+                        $errors[] = "Dòng {$row}: Sản phẩm '{$hangHoa['ten_hang_hoa']}' là hàng đóng gói, số lượng phải là số nguyên.";
+                    }
+                }
             }
 
             if ($d['don_gia_nhap'] <= 0) {
@@ -407,6 +418,17 @@ class KhoController
 
             if ($d['so_luong'] <= 0) {
                 $errors[] = "Dòng {$row}: Số lượng phải lớn hơn 0.";
+            }
+
+            // Kiểm tra hàng đóng gói hay hàng cân
+            $hangHoa = $this->hangHoaModel->findById($d['ma_hang_hoa']);
+            if ($hangHoa !== null) {
+                if (empty($hangHoa['ma_tem_can'])) {
+                    // Hàng đóng gói, bắt buộc số nguyên
+                    if (fmod((float) $d['so_luong'], 1.0) !== 0.0) {
+                        $errors[] = "Dòng {$row}: Sản phẩm '{$hangHoa['ten_hang_hoa']}' là hàng đóng gói, số lượng phải là số nguyên.";
+                    }
+                }
             }
 
             // Kiểm tra tồn kho
