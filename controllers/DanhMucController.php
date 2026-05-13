@@ -71,11 +71,19 @@ class DanhMucController
         $isEdit = (string) ($_POST['is_edit'] ?? '0') === '1';
         $errors = [];
 
-        if ($input['ma_danh_muc'] === '') {
+        if ($isEdit && $input['ma_danh_muc'] === '') {
             $errors[] = 'Mã danh mục không được để trống.';
         }
         if ($input['ten_danh_muc'] === '') {
             $errors[] = 'Tên danh mục không được để trống.';
+        } else {
+            $tenLen = mb_strlen($input['ten_danh_muc']);
+            if ($tenLen < 3 || $tenLen > 100) {
+                $errors[] = 'Tên danh mục phải từ 3 đến 100 ký tự.';
+            }
+        }
+        if (mb_strlen($input['mo_ta']) > 500) {
+            $errors[] = 'Mô tả danh mục không được vượt quá 500 ký tự.';
         }
 
         if ($errors !== []) {
@@ -88,10 +96,11 @@ class DanhMucController
                 $this->danhMucModel->update($input['ma_danh_muc'], $input);
                 flash('success', 'Cập nhật danh mục thành công.');
             } else {
+                if (empty($input['ma_danh_muc']) || $input['ma_danh_muc'] === '(Tự động sinh)') {
+                    $input['ma_danh_muc'] = $this->danhMucModel->generateId();
+                }
                 if ($this->danhMucModel->findById($input['ma_danh_muc']) !== null) {
-                    $errors[] = 'Mã danh mục đã tồn tại.';
-                    $this->renderForm($input, $errors, $isEdit);
-                    return;
+                    $input['ma_danh_muc'] = $this->danhMucModel->generateId();
                 }
                 $this->danhMucModel->create($input);
                 flash('success', 'Thêm danh mục thành công.');
@@ -109,13 +118,14 @@ class DanhMucController
         
         $user = current_user();
         $isAjax = expects_json_response();
-        if (($user['ma_chuc_vu'] ?? '') !== 'ADMIN') {
+        $role = $user['ma_chuc_vu'] ?? '';
+        if ($role !== 'ADMIN' && $role !== 'QUAN_LY') {
             if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Chỉ tài khoản ADMIN mới được phép xoá danh mục.']);
+                echo json_encode(['success' => false, 'message' => 'Chỉ tài khoản ADMIN hoặc Quản lý mới được phép xoá danh mục.']);
                 exit;
             }
-            flash('error', 'Chỉ tài khoản ADMIN mới được phép xoá danh mục.');
+            flash('error', 'Chỉ tài khoản ADMIN hoặc Quản lý mới được phép xoá danh mục.');
             redirect_to('danh-muc', 'index');
         }
 
@@ -135,6 +145,17 @@ class DanhMucController
             redirect_to('danh-muc', 'index');
         }
 
+        if ($this->danhMucModel->hasProducts($id)) {
+            $msg = 'Không thể xóa danh mục này vì đang có sản phẩm thuộc danh mục.';
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => $msg]);
+                exit;
+            }
+            flash('error', $msg);
+            redirect_to('danh-muc', 'index');
+        }
+
         try {
             $this->danhMucModel->delete($id);
             if ($isAjax) {
@@ -144,12 +165,16 @@ class DanhMucController
             }
             flash('success', 'Xóa danh mục thành công.');
         } catch (Throwable $exception) {
+            $msg = db_error_message($exception);
+            if (stripos($exception->getMessage(), 'foreign key') !== false) {
+                $msg = 'Không thể xóa danh mục này vì đang có sản phẩm thuộc danh mục.';
+            }
             if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => db_error_message($exception)]);
+                echo json_encode(['success' => false, 'message' => $msg]);
                 exit;
             }
-            flash('error', db_error_message($exception));
+            flash('error', $msg);
         }
 
         redirect_to('danh-muc', 'index');
@@ -157,11 +182,13 @@ class DanhMucController
 
     private function renderForm(?array $category, array $errors, bool $isEdit): void
     {
+        $nextId = !$isEdit ? $this->danhMucModel->generateId() : '';
         render('danh_muc/form', [
             'pageTitle' => $isEdit ? 'Cập nhật danh mục' : 'Thêm danh mục',
             'category' => $category,
             'errors' => $errors,
             'isEdit' => $isEdit,
+            'nextId' => $nextId,
         ]);
     }
 }

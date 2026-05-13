@@ -26,10 +26,7 @@ $isEdit = $isEdit ?? false;
         
         <div class="field">
             <label for="ma_danh_muc">Mã danh mục <span style="color: var(--red);">*</span></label>
-            <input id="ma_danh_muc" name="ma_danh_muc" value="<?= e($category['ma_danh_muc'] ?? '') ?>" <?= $isEdit ? 'readonly' : '' ?> required placeholder="Ví dụ: DO_UONG, THUC_PHAM">
-            <?php if (!$isEdit): ?>
-                <!-- <span class="form-note">Dùng chữ in hoa không dấu, không chứa dấu cách. Không thể đổi sau khi tạo.</span> -->
-            <?php endif; ?>
+            <input id="ma_danh_muc" name="ma_danh_muc" value="<?= $isEdit ? e($category['ma_danh_muc'] ?? '') : e($nextId) ?>" readonly style="background: var(--gray-soft); cursor: not-allowed; font-weight: bold;">
         </div>
 
         <div class="field">

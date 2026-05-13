@@ -20,7 +20,7 @@
                 </div>
 
                 <nav class="sidebar__nav">
-                    <?php if (can_access('dashboard') || can_access('bao-cao') || can_access('ban-hang')): ?>
+                    <?php if (can_access('dashboard') || can_access('bao-cao')): ?>
                     <div class="sidebar__section">
                         <span class="sidebar__section-label">Tổng quan</span>
                         <?php if (can_access('dashboard')): ?>
@@ -37,14 +37,6 @@
                                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zm10 0h6v10h-6zM4 14h6v6H4zm10 0h6v6h-6z"/></svg>
                                 </span>
                                 <span>Báo cáo</span>
-                            </a>
-                        <?php endif; ?>
-                        <?php if (can_access('ban-hang')): ?>
-                            <a class="nav-link <?= $route['controller'] === 'ban-hang' ? 'is-active' : '' ?>" href="<?= e(url_for('ban-hang', 'pos')) ?>" hx-boost="false">
-                                <span class="nav-link__icon">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10l1 13H6L7 7zm2-3h6l1 3H8l1-3zM9 11h6m-6 4h4"/></svg>
-                                </span>
-                                <span>POS bán hàng</span>
                             </a>
                         <?php endif; ?>
                     </div>
@@ -97,6 +89,20 @@
                                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 17h2a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2m2 4h6M9 17v4m6-4v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 </span>
                                 <span>Nhà cung cấp</span>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if (can_access('hoa-don')): ?>
+                    <div class="sidebar__section">
+                        <span class="sidebar__section-label">Hóa đơn</span>
+                        <?php if (can_access('ban-hang')): ?>
+                            <a class="nav-link <?= $route['controller'] === 'ban-hang' ? 'is-active' : '' ?>" href="<?= e(url_for('ban-hang', 'pos')) ?>" hx-boost="false">
+                                <span class="nav-link__icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10l1 13H6L7 7zm2-3h6l1 3H8l1-3zM9 11h6m-6 4h4"/></svg>
+                                </span>
+                                <span>POS bán hàng</span>
                             </a>
                         <?php endif; ?>
                     </div>

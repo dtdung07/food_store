@@ -96,6 +96,19 @@ class NhaCungCapModel
         return $stmt->execute([$ma_nha_cung_cap]);
     }
 
+    public function generateId(): string
+    {
+        $stmt = $this->pdo->query("SELECT ma_nha_cung_cap FROM nha_cung_cap WHERE ma_nha_cung_cap LIKE 'NCC%' ORDER BY ma_nha_cung_cap DESC LIMIT 1");
+        $last = $stmt->fetchColumn();
+        if ($last) {
+            $seq = (int) substr($last, 3);
+            $seq++;
+        } else {
+            $seq = 1;
+        }
+        return 'NCC' . str_pad((string) $seq, 3, '0', STR_PAD_LEFT);
+    }
+
     public function countAll(): int
     {
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM nha_cung_cap");
@@ -148,6 +161,36 @@ class NhaCungCapModel
                 ORDER BY ten_nha_cung_cap ASC";
 
         return $this->pdo->query($sql)->fetchAll();
+    }
+
+    public function isNameExists(string $name, ?string $excludeMaNhaCungCap = null): bool
+    {
+        $sql = "SELECT COUNT(*) FROM nha_cung_cap WHERE TRIM(LOWER(ten_nha_cung_cap)) = TRIM(LOWER(?))";
+        $params = [$name];
+        if ($excludeMaNhaCungCap !== null) {
+            $sql .= " AND ma_nha_cung_cap != ?";
+            $params[] = $excludeMaNhaCungCap;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return ((int) $stmt->fetchColumn()) > 0;
+    }
+
+    public function hasRelations(string $ma_nha_cung_cap): bool
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM hang_hoa WHERE ma_nha_cung_cap = ?");
+        $stmt->execute([$ma_nha_cung_cap]);
+        if (((int) $stmt->fetchColumn()) > 0) {
+            return true;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM phieu_nhap_hang WHERE ma_nha_cung_cap = ?");
+        $stmt->execute([$ma_nha_cung_cap]);
+        if (((int) $stmt->fetchColumn()) > 0) {
+            return true;
+        }
+
+        return false;
     }
 
     //Tìm nhà cung cấp theo id

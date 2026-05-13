@@ -8,7 +8,7 @@
     data-wrong-beep-url="<?= e(asset_url('audio/freesound_community-wronganswer-37702.mp3')) ?>"
 >
     <section class="pos-main">
-        <div class="page-header">
+        <!-- <div class="page-header">
             <div class="page-header__left">
                 <h2>POS thanh toán</h2>
                 <p>Quét mã vạch cố định hoặc tem cân, cập nhật giỏ hàng theo thời gian thực.</p>
@@ -17,7 +17,7 @@
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                 Hủy hóa đơn
             </button>
-        </div>
+        </div> -->
 
         <!-- Scanner card: camera full-width, controls below -->
         <div class="pos-scanner card">
@@ -51,8 +51,14 @@
         <!-- Cart table -->
         <div class="card pos-cart-card">
             <div class="form-section__header">
-                <h3 class="form-section__title">Chi tiết hóa đơn</h3>
-                <span class="badge badge--neutral" id="cart-count">0 dòng</span>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <h3 class="form-section__title">Chi tiết hóa đơn</h3>
+                    <span class="badge badge--neutral" id="cart-count">0 dòng</span>
+                </div>
+                <button type="button" class="button button--ghost button--sm" id="clear-cart" style="color: var(--red); border-color: var(--line-strong);">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="width: 16px; height: 16px; fill: currentColor; stroke: none;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    Hủy hóa đơn
+                </button>
             </div>
 
             <div class="table-wrap">

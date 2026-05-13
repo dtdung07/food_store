@@ -56,9 +56,9 @@ declare(strict_types=1);
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </span>
         <div class="stat-card__content">
-            <span class="stat-card__label">Hàng sắp hết hạn</span>
+            <span class="stat-card__label">Cảnh báo hạn sử dụng</span>
             <strong class="stat-card__value"><?= e((string)$stats['expiring_soon_count']) ?> lô hàng</strong>
-            <span class="stat-card__hint" style="color: #d92e67;">Hạn sử dụng dưới 7 ngày</span>
+            <span class="stat-card__hint" style="color: #d92e67;">Đã hết hạn hoặc dưới 7 ngày</span>
         </div>
         <span class="stat-card__accent"></span>
     </article>
@@ -89,12 +89,12 @@ declare(strict_types=1);
     <div class="table-card table-card--flush">
         <div class="table-card__header">
             <div>
-                <h3>Danh sách lô hàng sắp hết hạn</h3>
-                <p class="section-subtitle">Cần ưu tiên bán trước hoặc có phương án hủy thất thoát.</p>
+                <h3>Cảnh báo hạn sử dụng</h3>
+                <p class="section-subtitle">Các lô hàng đã hết hạn sử dụng (cần hủy) hoặc sắp hết hạn dưới 7 ngày.</p>
             </div>
         </div>
         <?php if ($expiringItems === []): ?>
-            <div class="empty-state" style="margin: 24px;">Không có lô hàng nào sắp hết hạn.</div>
+            <div class="empty-state" style="margin: 24px;">Không có lô hàng nào cảnh báo.</div>
         <?php else: ?>
             <div class="table-wrap">
                 <table>
@@ -124,7 +124,11 @@ declare(strict_types=1);
                                     <strong><?= e((string)$item['so_luong_tren_ke']) ?></strong> / <?= e((string)$item['so_luong_trong_kho']) ?>
                                 </td>
                                 <td>
-                                    <span class="badge badge--danger">Sắp hết hạn</span>
+                                    <?php
+                                    $isExpired = strtotime((string)$item['han_su_dung']) < strtotime(date('Y-m-d'));
+                                    $statusCode = $isExpired ? 'HET_HAN' : 'SAP_HET_HAN';
+                                    ?>
+                                    <span class="badge badge--<?= e(badge_tone($statusCode)) ?>"><?= e(status_label($statusCode)) ?></span>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

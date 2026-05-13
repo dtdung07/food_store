@@ -30,7 +30,7 @@ $loHangs = $loHangs ?? [];
 
         <div class="field">
             <label for="ma_hang_hoa">Mã hàng hóa <span style="color: var(--red);">*</span></label>
-            <input id="ma_hang_hoa" name="ma_hang_hoa" value="<?= e($hangHoa['ma_hang_hoa'] ?? '') ?>" <?= $isEdit ? 'readonly' : '' ?> required placeholder="Ví dụ: HH001, COCA, ...">
+            <input id="ma_hang_hoa" name="ma_hang_hoa" value="<?= $isEdit ? e($hangHoa['ma_hang_hoa'] ?? '') : e($nextId) ?>" readonly style="background: var(--gray-soft); cursor: not-allowed; font-weight: bold;">
         </div>
 
         <div class="field">

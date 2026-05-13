@@ -55,11 +55,13 @@ class NhaCungCapController
             redirect_to('nha-cung-cap', 'index');
         }
 
+        $nextId = $supplier === null ? $this->nhaCungCapModel->generateId() : '';
         render('nha_cung_cap/form', [
             'pageTitle' => $supplier !== null ? 'Cập nhật nhà cung cấp' : 'Thêm nhà cung cấp',
             'supplier' => $supplier,
             'errors' => [],
             'isEdit' => $supplier !== null,
+            'nextId' => $nextId,
         ]);
     }
 
@@ -85,19 +87,36 @@ class NhaCungCapController
         ];
 
         $errors = [];
-        if (!$isEdit && empty($input['ma_nha_cung_cap'])) {
-            $errors[] = 'Mã nhà cung cấp không được để trống.';
-        }
         if (empty($input['ten_nha_cung_cap'])) {
             $errors[] = 'Tên nhà cung cấp không được để trống.';
+        } else {
+            if ($this->nhaCungCapModel->isNameExists($input['ten_nha_cung_cap'], $isEdit ? $originalId : null)) {
+                $errors[] = "Tên nhà cung cấp '{$input['ten_nha_cung_cap']}' đã tồn tại.";
+            }
+        }
+
+        if (!empty($input['email'])) {
+            if (filter_var($input['email'], FILTER_VALIDATE_EMAIL) === false) {
+                $errors[] = 'Email không đúng định dạng.';
+            }
+        }
+
+        if (empty($input['so_dien_thoai'])) {
+            $errors[] = 'Số điện thoại không được để trống.';
+        } else {
+            if (preg_match('/^[0-9]{10}$/', $input['so_dien_thoai']) !== 1) {
+                $errors[] = 'Số điện thoại phải gồm đúng 10 chữ số.';
+            }
         }
 
         if ($errors !== []) {
+            $nextId = !$isEdit ? $this->nhaCungCapModel->generateId() : '';
             render('nha_cung_cap/form', [
                 'pageTitle' => $isEdit ? 'Cập nhật nhà cung cấp' : 'Thêm nhà cung cấp',
                 'supplier' => $input,
                 'errors' => $errors,
                 'isEdit' => $isEdit,
+                'nextId' => $nextId,
             ]);
             return;
         }
@@ -107,8 +126,11 @@ class NhaCungCapController
                 $this->nhaCungCapModel->update($originalId, $input);
                 flash('success', 'Cập nhật nhà cung cấp thành công.');
             } else {
+                if (empty($input['ma_nha_cung_cap']) || $input['ma_nha_cung_cap'] === '(Tự động sinh)') {
+                    $input['ma_nha_cung_cap'] = $this->nhaCungCapModel->generateId();
+                }
                 if ($this->nhaCungCapModel->findById($input['ma_nha_cung_cap']) !== null) {
-                    throw new Exception('Mã nhà cung cấp đã tồn tại.');
+                    $input['ma_nha_cung_cap'] = $this->nhaCungCapModel->generateId();
                 }
                 $this->nhaCungCapModel->create($input);
                 flash('success', 'Thêm nhà cung cấp thành công.');
@@ -116,11 +138,13 @@ class NhaCungCapController
             redirect_to('nha-cung-cap', 'index');
         } catch (Throwable $exception) {
             $errors[] = $exception->getMessage();
+            $nextId = !$isEdit ? $this->nhaCungCapModel->generateId() : '';
             render('nha_cung_cap/form', [
                 'pageTitle' => $isEdit ? 'Cập nhật nhà cung cấp' : 'Thêm nhà cung cấp',
                 'supplier' => $input,
                 'errors' => $errors,
                 'isEdit' => $isEdit,
+                'nextId' => $nextId,
             ]);
         }
     }
@@ -131,13 +155,14 @@ class NhaCungCapController
 
         $user = current_user();
         $isAjax = expects_json_response();
-        if (($user['ma_chuc_vu'] ?? '') !== 'ADMIN') {
+        $role = $user['ma_chuc_vu'] ?? '';
+        if ($role !== 'ADMIN' && $role !== 'QUAN_LY') {
             if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Chỉ tài khoản ADMIN mới được phép xoá nhà cung cấp.']);
+                echo json_encode(['success' => false, 'message' => 'Chỉ tài khoản ADMIN hoặc Quản lý mới được phép xoá nhà cung cấp.']);
                 exit;
             }
-            flash('error', 'Chỉ tài khoản ADMIN mới được phép xoá nhà cung cấp.');
+            flash('error', 'Chỉ tài khoản ADMIN hoặc Quản lý mới được phép xoá nhà cung cấp.');
             redirect_to('nha-cung-cap', 'index');
         }
 
@@ -157,6 +182,17 @@ class NhaCungCapController
             redirect_to('nha-cung-cap', 'index');
         }
 
+        if ($this->nhaCungCapModel->hasRelations($id)) {
+            $msg = 'Không thể xóa nhà cung cấp này vì đã có hàng hóa hoặc phiếu nhập liên kết. Bạn nên chuyển trạng thái sang \'Vô hiệu hóa\'.';
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => $msg]);
+                exit;
+            }
+            flash('error', $msg);
+            redirect_to('nha-cung-cap', 'index');
+        }
+
         try {
             if ($this->nhaCungCapModel->delete($id)) {
                 if ($isAjax) {
@@ -169,12 +205,16 @@ class NhaCungCapController
                 throw new Exception('Không thể xóa nhà cung cấp này. Có thể nhà cung cấp đang tồn tại trong lô hàng hoặc hóa đơn.');
             }
         } catch (Throwable $exception) {
+            $msg = db_error_message($exception);
+            if (stripos($exception->getMessage(), 'foreign key') !== false) {
+                $msg = 'Không thể xóa nhà cung cấp này vì đã có giao dịch nhập hàng liên kết. Bạn nên chuyển trạng thái sang \'Vô hiệu hóa\'.';
+            }
             if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => db_error_message($exception)]);
+                echo json_encode(['success' => false, 'message' => $msg]);
                 exit;
             }
-            flash('error', db_error_message($exception));
+            flash('error', $msg);
         }
 
         redirect_to('nha-cung-cap', 'index');

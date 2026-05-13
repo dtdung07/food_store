@@ -183,10 +183,36 @@ class HangHoaModel
         return ((int) $stmt->fetchColumn()) > 0;
     }
 
+    public function isNameExists(string $name, ?string $excludeMaHangHoa = null): bool
+    {
+        $sql = "SELECT COUNT(*) FROM hang_hoa WHERE TRIM(LOWER(ten_hang_hoa)) = TRIM(LOWER(?))";
+        $params = [$name];
+        if ($excludeMaHangHoa !== null) {
+            $sql .= " AND ma_hang_hoa != ?";
+            $params[] = $excludeMaHangHoa;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return ((int) $stmt->fetchColumn()) > 0;
+    }
+
     public function delete(string $ma_hang_hoa): bool
     {
         $stmt = $this->pdo->prepare("DELETE FROM hang_hoa WHERE ma_hang_hoa = ?");
         return $stmt->execute([$ma_hang_hoa]);
+    }
+
+    public function generateId(): string
+    {
+        $stmt = $this->pdo->query("SELECT ma_hang_hoa FROM hang_hoa WHERE ma_hang_hoa LIKE 'HH%' ORDER BY ma_hang_hoa DESC LIMIT 1");
+        $last = $stmt->fetchColumn();
+        if ($last) {
+            $seq = (int) substr($last, 2);
+            $seq++;
+        } else {
+            $seq = 1;
+        }
+        return 'HH' . str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
     }
 
     public function getAll(?int $limit = null, ?int $offset = null): array
@@ -269,5 +295,26 @@ class HangHoaModel
         $row = $stmt->fetch();
 
         return $row ?: null;
+    }
+
+    public function hasRelations(string $ma_hang_hoa): bool
+    {
+        $tables = [
+            'lo_hang' => 'ma_hang_hoa',
+            'chi_tiet_hoa_don' => 'ma_hang_hoa',
+            'chi_tiet_phieu_nhap' => 'ma_hang_hoa',
+            'chi_tiet_phieu_xuat' => 'ma_hang_hoa',
+            'chi_tiet_phieu_huy' => 'ma_hang_hoa'
+        ];
+
+        foreach ($tables as $table => $column) {
+            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM `{$table}` WHERE `{$column}` = ?");
+            $stmt->execute([$ma_hang_hoa]);
+            if (((int) $stmt->fetchColumn()) > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

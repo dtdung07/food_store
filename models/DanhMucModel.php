@@ -71,6 +71,26 @@ class DanhMucModel
         return $stmt->execute([$ma_danh_muc]);
     }
 
+    public function generateId(): string
+    {
+        $stmt = $this->pdo->query("SELECT ma_danh_muc FROM danh_muc WHERE ma_danh_muc LIKE 'DM%' ORDER BY ma_danh_muc DESC LIMIT 1");
+        $last = $stmt->fetchColumn();
+        if ($last) {
+            $seq = (int) substr($last, 2);
+            $seq++;
+        } else {
+            $seq = 1;
+        }
+        return 'DM' . str_pad((string) $seq, 3, '0', STR_PAD_LEFT);
+    }
+
+    public function hasProducts(string $ma_danh_muc): bool
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM hang_hoa WHERE ma_danh_muc = ?");
+        $stmt->execute([$ma_danh_muc]);
+        return ((int) $stmt->fetchColumn()) > 0;
+    }
+
     public function countAll(): int
     {
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM danh_muc");

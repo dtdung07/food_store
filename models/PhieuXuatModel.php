@@ -151,6 +151,9 @@ class PhieuXuatModel
         $this->pdo->beginTransaction();
 
         try {
+            require_once APP_ROOT . '/models/LoHangModel.php';
+            $loHangModel = new LoHangModel();
+
             $maPhieu = $this->generateId();
             $tongSoLuong = 0.0;
 
@@ -204,17 +207,8 @@ class PhieuXuatModel
                     ]);
 
                     //Giảm kho, tăng kệ
-                    $updateLo = $this->pdo->prepare(
-                        "UPDATE lo_hang
-                         SET so_luong_trong_kho = so_luong_trong_kho - :qty,
-                             so_luong_tren_ke = so_luong_tren_ke + :qty2
-                         WHERE ma_lo_hang = :id"
-                    );
-                    $updateLo->execute([
-                        'qty'  => $suggestion['so_luong_xuat'],
-                        'qty2' => $suggestion['so_luong_xuat'],
-                        'id'   => $suggestion['ma_lo_hang'],
-                    ]);
+                    $loHangModel->updateKhoQty($suggestion['ma_lo_hang'], -$suggestion['so_luong_xuat']);
+                    $loHangModel->updateKeQty($suggestion['ma_lo_hang'], $suggestion['so_luong_xuat']);
                 }
 
                 $tongSoLuong += $soLuong;

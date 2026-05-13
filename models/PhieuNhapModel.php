@@ -106,6 +106,9 @@ class PhieuNhapModel
                 'ma_nha_cung_cap' => $header['ma_nha_cung_cap'],
             ]);
 
+            require_once APP_ROOT . '/models/LoHangModel.php';
+            $loHangModel = new LoHangModel();
+
             //2. Xử lý từng sản phẩm trong details (chi tiết phiếu nhập)
             foreach ($details as $detail) {
                 $soLuong = round((float) $detail['so_luong'], 3);
@@ -119,10 +122,7 @@ class PhieuNhapModel
 
                 if ($existsStmt->fetchColumn() !== false) {
                     //Lô hàng tồn tại -> cộng thêm số lượng
-                    $updateStmt = $this->pdo->prepare(
-                        "UPDATE lo_hang SET so_luong_trong_kho = so_luong_trong_kho + :qty WHERE ma_lo_hang = :id"
-                    );
-                    $updateStmt->execute(['qty' => $soLuong, 'id' => $maLoHang]);
+                    $loHangModel->updateKhoQty($maLoHang, $soLuong);
                 } else {
                     // Chưa tồn tại, tạo lô mới
                     $insertLoStmt = $this->pdo->prepare(

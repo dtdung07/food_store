@@ -334,6 +334,9 @@ class HoaDonModel
     //Trừ số lượng hàng hóa trong lô hàng theo FIFO
     private function deductFifoShelfThenWarehouse(string $productId, float $quantity, int $detailId): void
     {
+        require_once APP_ROOT . '/models/LoHangModel.php';
+        $loHangModel = new LoHangModel();
+
         $lots = $this->lockLots($productId);
         $available = 0.0;
 
@@ -403,15 +406,11 @@ class HoaDonModel
                 }
 
                 //Cập nhật số lượng hàng hóa
-                $updateStatement = $this->pdo->prepare(
-                    "UPDATE lo_hang
-                     SET {$column} = {$column} - :quantity
-                     WHERE ma_lo_hang = :lot_id"
-                );
-                $updateStatement->execute([
-                    'quantity' => $take,
-                    'lot_id' => $lot['ma_lo_hang'],
-                ]);
+                if ($column === 'so_luong_tren_ke') {
+                    $loHangModel->updateKeQty($lot['ma_lo_hang'], -$take);
+                } else {
+                    $loHangModel->updateKhoQty($lot['ma_lo_hang'], -$take);
+                }
 
                 //Cập nhật lại giá trị trong mảng $lots để dùng cho vòng lặp cột sau
                 $lots[$index][$column] = $availableInLot - $take;

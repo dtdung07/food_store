@@ -169,6 +169,8 @@ class PhieuHuyModel
         $this->pdo->beginTransaction();
 
         try {
+            require_once APP_ROOT . '/models/LoHangModel.php';
+            $loHangModel = new LoHangModel();
             //Kiểm tra phiếu còn ở trạng thái chờ duyệt
             $checkStmt = $this->pdo->prepare(
                 "SELECT trang_thai FROM phieu_huy_hang WHERE ma_phieu_huy = :id LIMIT 1"
@@ -240,15 +242,11 @@ class PhieuHuyModel
                     $fromKe = $take - $fromKho;
 
                     if ($fromKho > 0) {
-                        $this->pdo->prepare(
-                            "UPDATE lo_hang SET so_luong_trong_kho = so_luong_trong_kho - :qty WHERE ma_lo_hang = :id"
-                        )->execute(['qty' => $fromKho, 'id' => $lot['ma_lo_hang']]);
+                        $loHangModel->updateKhoQty($lot['ma_lo_hang'], -$fromKho);
                     }
 
                     if ($fromKe > 0) {
-                        $this->pdo->prepare(
-                            "UPDATE lo_hang SET so_luong_tren_ke = so_luong_tren_ke - :qty WHERE ma_lo_hang = :id"
-                        )->execute(['qty' => $fromKe, 'id' => $lot['ma_lo_hang']]);
+                        $loHangModel->updateKeQty($lot['ma_lo_hang'], -$fromKe);
                     }
 
                     //Ghi chi tiết hủy lô

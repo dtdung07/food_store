@@ -60,6 +60,7 @@ class HangHoaController
         $loHangs = $id !== '' ? $this->hangHoaModel->getLoHang($id) : [];
         $danhMucs = $this->danhMucModel->getAll();
         $nhaCungCaps = $this->nhaCungCapModel->getAllActive();
+        $nextId = $hangHoa === null ? $this->hangHoaModel->generateId() : '';
 
         render('hang_hoa/form', [
             'pageTitle' => $hangHoa !== null ? 'Cập nhật hàng hóa' : 'Thêm hàng hóa',
@@ -69,6 +70,7 @@ class HangHoaController
             'nhaCungCaps' => $nhaCungCaps,
             'errors' => [],
             'isEdit' => $hangHoa !== null,
+            'nextId' => $nextId,
         ]);
     }
 
@@ -99,12 +101,13 @@ class HangHoaController
             'ma_nha_cung_cap' => trim((string) ($_POST['ma_nha_cung_cap'] ?? '')) ?: null,
         ];
 
-        $errors = $this->_validate($input, !$isEdit, $isEdit ? $originalId : null);
+        $errors = $this->_validate($input, $isEdit, $isEdit ? $originalId : null);
 
         if ($errors !== []) {
             $danhMucs = $this->danhMucModel->getAll();
             $nhaCungCaps = $this->nhaCungCapModel->getAllActive();
             $loHangs = $isEdit ? $this->hangHoaModel->getLoHang($originalId) : [];
+            $nextId = !$isEdit ? $this->hangHoaModel->generateId() : '';
 
             render('hang_hoa/form', [
                 'pageTitle' => $isEdit ? 'Cập nhật hàng hóa' : 'Thêm hàng hóa',
@@ -114,6 +117,7 @@ class HangHoaController
                 'nhaCungCaps' => $nhaCungCaps,
                 'errors' => $errors,
                 'isEdit' => $isEdit,
+                'nextId' => $nextId,
             ]);
             return;
         }
@@ -147,8 +151,11 @@ class HangHoaController
                 $this->hangHoaModel->update($originalId, $input);
                 flash('success', 'Cập nhật hàng hóa thành công.');
             } else {
+                if (empty($input['ma_hang_hoa']) || $input['ma_hang_hoa'] === '(TỰ ĐỘNG SINH)' || $input['ma_hang_hoa'] === '(TỰ ĐỘNG SINH)' || stripos($input['ma_hang_hoa'], 'tự động sinh') !== false) {
+                    $input['ma_hang_hoa'] = $this->hangHoaModel->generateId();
+                }
                 if ($this->hangHoaModel->findById($input['ma_hang_hoa']) !== null) {
-                    throw new Exception('Mã hàng hóa đã tồn tại.');
+                    $input['ma_hang_hoa'] = $this->hangHoaModel->generateId();
                 }
                 $this->hangHoaModel->create($input);
                 flash('success', 'Thêm hàng hóa thành công.');
@@ -178,13 +185,14 @@ class HangHoaController
 
         $user = current_user();
         $isAjax = expects_json_response();
-        if (($user['ma_chuc_vu'] ?? '') !== 'ADMIN') {
+        $role = $user['ma_chuc_vu'] ?? '';
+        if ($role !== 'ADMIN' && $role !== 'QUAN_LY') {
             if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Chỉ tài khoản ADMIN mới được phép xoá sản phẩm.']);
+                echo json_encode(['success' => false, 'message' => 'Chỉ tài khoản ADMIN hoặc Quản lý mới được phép xoá sản phẩm.']);
                 exit;
             }
-            flash('error', 'Chỉ tài khoản ADMIN mới được phép xoá sản phẩm.');
+            flash('error', 'Chỉ tài khoản ADMIN hoặc Quản lý mới được phép xoá sản phẩm.');
             redirect_to('hang-hoa', 'index');
         }
 
@@ -204,6 +212,17 @@ class HangHoaController
             redirect_to('hang-hoa', 'index');
         }
 
+        if ($this->hangHoaModel->hasRelations($id)) {
+            $msg = 'Không thể xóa hàng hóa này vì đã phát sinh lịch sử giao dịch (lô hàng, hóa đơn hoặc phiếu nhập/xuất/hủy). Bạn nên chuyển sang trạng thái \'Ngừng kinh doanh\'.';
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => $msg]);
+                exit;
+            }
+            flash('error', $msg);
+            redirect_to('hang-hoa', 'index');
+        }
+
         try {
             if ($this->hangHoaModel->delete($id)) {
                 if ($isAjax) {
@@ -216,12 +235,16 @@ class HangHoaController
                 throw new Exception('Không thể xóa hàng hóa này. Có thể sản phẩm đang tồn tại trong lô hàng hoặc hóa đơn.');
             }
         } catch (Throwable $exception) {
+            $msg = $exception->getMessage();
+            if (stripos($msg, 'foreign key') !== false) {
+                $msg = 'Không thể xóa hàng hóa này vì đã phát sinh lịch sử giao dịch (hóa đơn, lô hàng, phiếu nhập/xuất/hủy). Bạn nên chuyển sang trạng thái \'Ngừng kinh doanh\'.';
+            }
             if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => $exception->getMessage()]);
+                echo json_encode(['success' => false, 'message' => $msg]);
                 exit;
             }
-            flash('error', $exception->getMessage());
+            flash('error', $msg);
         }
 
         redirect_to('hang-hoa', 'index');
@@ -248,6 +271,10 @@ class HangHoaController
         }
         if (empty($data['ten_hang_hoa'])) {
             $errors[] = 'Tên hàng hóa không được để trống.';
+        } else {
+            if ($this->hangHoaModel->isNameExists($data['ten_hang_hoa'], $originalId)) {
+                $errors[] = "Tên hàng hóa '{$data['ten_hang_hoa']}' đã được sử dụng cho hàng hóa khác.";
+            }
         }
         if (empty($data['don_vi_tinh'])) {
             $errors[] = 'Đơn vị tính không được để trống.';
@@ -256,8 +283,8 @@ class HangHoaController
             $errors[] = 'Giá bán không được để trống.';
         } elseif (!is_numeric($data['gia_ban'])) {
             $errors[] = 'Giá bán phải là số.';
-        } elseif ((float) $data['gia_ban'] < 0) {
-            $errors[] = 'Giá bán không được âm.';
+        } elseif ((float) $data['gia_ban'] <= 0) {
+            $errors[] = 'Giá bán phải lớn hơn 0.';
         }
         if ($data['ma_tem_can'] !== null && $data['ma_tem_can'] !== '') {
             if (preg_match('/^\d{5}$/', $data['ma_tem_can']) !== 1) {

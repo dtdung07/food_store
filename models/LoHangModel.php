@@ -91,8 +91,8 @@ class LoHangModel
             'ma_lo_hang'        => $data['ma_lo_hang'],
             'ngay_san_xuat'     => $data['ngay_san_xuat'],
             'han_su_dung'       => $data['han_su_dung'],
-            'so_luong_trong_kho' => (int) ($data['so_luong_trong_kho'] ?? 0),
-            'so_luong_tren_ke'  => (int) ($data['so_luong_tren_ke'] ?? 0),
+            'so_luong_trong_kho' => (float) ($data['so_luong_trong_kho'] ?? 0.0),
+            'so_luong_tren_ke'  => (float) ($data['so_luong_tren_ke'] ?? 0.0),
             'ma_hang_hoa'       => $data['ma_hang_hoa'],
         ]);
     }
@@ -108,7 +108,7 @@ class LoHangModel
 
     //Cập nhật số lượng trong kho (tăng hoặc giảm)
     //Số lượng thay đổi (dương = tăng, âm =  giảm)
-    public function updateKhoQty(string $maLoHang, int $delta): void
+    public function updateKhoQty(string $maLoHang, float $delta): void
     {
         $stmt = $this->pdo->prepare(
             "UPDATE lo_hang SET so_luong_trong_kho = so_luong_trong_kho + :delta
@@ -118,7 +118,7 @@ class LoHangModel
     }
 
     //Cập nhật số lượng trên kệ (tăng hoặc giảm)
-    public function updateKeQty(string $maLoHang, int $delta): void
+    public function updateKeQty(string $maLoHang, float $delta): void
     {
         $stmt = $this->pdo->prepare(
             "UPDATE lo_hang SET so_luong_tren_ke = so_luong_tren_ke + :delta
@@ -128,25 +128,25 @@ class LoHangModel
     }
 
     //Tổng tồn kho chính của 1 mặt hàng
-    public function getTotalStockInKho(string $maHangHoa): int
+    public function getTotalStockInKho(string $maHangHoa): float
     {
         $stmt = $this->pdo->prepare(
-            "SELECT COALESCE(SUM(so_luong_trong_kho), 0) FROM lo_hang WHERE ma_hang_hoa = :id"
+            "SELECT COALESCE(SUM(so_luong_trong_kho), 0.0) FROM lo_hang WHERE ma_hang_hoa = :id"
         );
         $stmt->execute(['id' => $maHangHoa]);
 
-        return (int) $stmt->fetchColumn();
+        return (float) $stmt->fetchColumn();
     }
 
     //Tổng tồn trên kệ của 1 mặt hàng
-    public function getTotalStockOnKe(string $maHangHoa): int
+    public function getTotalStockOnKe(string $maHangHoa): float
     {
         $stmt = $this->pdo->prepare(
-            "SELECT COALESCE(SUM(so_luong_tren_ke), 0) FROM lo_hang WHERE ma_hang_hoa = :id"
+            "SELECT COALESCE(SUM(so_luong_tren_ke), 0.0) FROM lo_hang WHERE ma_hang_hoa = :id"
         );
         $stmt->execute(['id' => $maHangHoa]);
 
-        return (int) $stmt->fetchColumn();
+        return (float) $stmt->fetchColumn();
     }
 
     public function getLastLotCodeWithPrefix(string $prefix): ?string

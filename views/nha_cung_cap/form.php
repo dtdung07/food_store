@@ -27,7 +27,7 @@ $isEdit = $isEdit ?? false;
 
         <div class="field">
             <label for="ma_nha_cung_cap">Mã nhà cung cấp <span style="color: var(--red);">*</span></label>
-            <input id="ma_nha_cung_cap" name="ma_nha_cung_cap" value="<?= e($supplier['ma_nha_cung_cap'] ?? '') ?>" <?= $isEdit ? 'readonly' : '' ?> required placeholder="Ví dụ: NCC_VINAMILK, NCC01">
+            <input id="ma_nha_cung_cap" name="ma_nha_cung_cap" value="<?= $isEdit ? e($supplier['ma_nha_cung_cap'] ?? '') : e($nextId) ?>" readonly style="background: var(--gray-soft); cursor: not-allowed; font-weight: bold;">
         </div>
 
         <div class="field">
